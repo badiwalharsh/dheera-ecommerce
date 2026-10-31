@@ -16,59 +16,59 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 bg-[#FAF9F5]/95 backdrop-blur-md border-b border-[#E2DFD6] transition-all">
       <Container size="default">
-        <div className="flex items-center justify-between h-20 md:h-24">
+        <div className="flex items-center justify-between h-16 sm:h-20 md:h-24 gap-2">
           {/* Mobile hamburger toggle */}
-          <div className="flex items-center lg:hidden">
+          <div className="flex items-center lg:hidden flex-shrink-0">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-[#176B45] hover:text-[#AA9160] transition-colors focus:outline-none"
+              className="p-1.5 sm:p-2 text-[#176B45] hover:text-[#AA9160] transition-colors focus:outline-none"
               aria-label="Toggle Navigation"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
           </div>
 
-          {/* Left Navigation (Home, Shop, Collections, Customise, Our Story) */}
+          {/* Left Navigation (Desktop Only) */}
           <div className="hidden lg:flex items-center flex-1">
             <DesktopNav />
           </div>
 
           {/* Centered Brand Logo */}
-          <div className="flex-shrink-0 flex items-center justify-center">
+          <div className="flex-shrink-0 flex items-center justify-center min-w-0">
             <BrandLogo size="md" />
           </div>
 
-          {/* Right Navigation & Tools (Search, Account, Wishlist, Shopping Bag) */}
-          <div className="flex items-center justify-end gap-2 sm:gap-4 md:gap-5 flex-1">
+          {/* Right Navigation & Tools */}
+          <div className="flex items-center justify-end gap-1 sm:gap-3 md:gap-5 flex-shrink-0 lg:flex-1">
             {/* Search Trigger */}
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="p-2 text-[#176B45] hover:text-[#AA9160] transition-colors focus:outline-none group relative"
+              className="p-1.5 sm:p-2 text-[#176B45] hover:text-[#AA9160] transition-colors focus:outline-none"
               aria-label="Search Collection"
             >
-              <Search className="w-4 h-4 md:w-5 md:h-5" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             {/* Account Link */}
             <Link
               href="/account"
-              className="p-2 text-[#176B45] hover:text-[#AA9160] transition-colors hidden sm:inline-flex"
+              className="p-1.5 sm:p-2 text-[#176B45] hover:text-[#AA9160] transition-colors hidden sm:inline-flex"
               aria-label="Account"
             >
-              <User className="w-4 h-4 md:w-5 md:h-5" />
+              <User className="w-4 h-4 sm:w-5 sm:h-5" />
             </Link>
 
             {/* Wishlist Link with Count Badge */}
             <Link
               href="/account"
-              className="p-2 text-[#176B45] hover:text-[#AA9160] transition-colors relative"
+              className="p-1.5 sm:p-2 text-[#176B45] hover:text-[#AA9160] transition-colors relative"
               aria-label="Wishlist"
             >
-              <Heart className="w-4 h-4 md:w-5 md:h-5" />
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
               {wishlistCount > 0 && (
-                <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-[#176B45] text-white text-[9px] flex items-center justify-center font-bold shadow-sm">
+                <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 min-w-[14px] sm:min-w-[16px] h-3.5 sm:h-4 px-1 rounded-full bg-[#176B45] text-white text-[8px] sm:text-[9px] flex items-center justify-center font-bold shadow-sm">
                   {wishlistCount}
                 </span>
               )}
@@ -77,12 +77,12 @@ export function Header() {
             {/* Shopping Bag with Item Count Badge */}
             <Link
               href="/cart"
-              className="p-2 text-[#176B45] hover:text-[#AA9160] transition-colors relative"
+              className="p-1.5 sm:p-2 text-[#176B45] hover:text-[#AA9160] transition-colors relative"
               aria-label="Shopping Bag"
             >
-              <ShoppingBag className="w-4 h-4 md:w-5 md:h-5" />
+              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
               {cartCount > 0 && (
-                <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-[#176B45] text-white text-[9px] flex items-center justify-center font-bold shadow-sm">
+                <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 min-w-[14px] sm:min-w-[16px] h-3.5 sm:h-4 px-1 rounded-full bg-[#176B45] text-white text-[8px] sm:text-[9px] flex items-center justify-center font-bold shadow-sm">
                   {cartCount}
                 </span>
               )}

@@ -7,12 +7,12 @@ import { BRAND } from "@/constants";
 
 export function BrandStory() {
   return (
-    <section className="py-20 md:py-28 bg-[#FAF9F5] border-b border-[#E2DFD6] overflow-hidden">
+    <section className="py-14 sm:py-20 md:py-28 bg-[#FAF9F5] border-b border-[#E2DFD6] overflow-x-hidden">
       <Container size="default">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center">
           {/* Editorial Visual Panel */}
-          <div className="lg:col-span-5 relative order-2 lg:order-1">
-            <div className="relative aspect-[4/5] bg-[#EEEAE0] border border-[#E2DFD6] overflow-hidden shadow-sm">
+          <div className="lg:col-span-5 relative order-2 lg:order-1 w-full">
+            <div className="relative aspect-[4/5] bg-[#EEEAE0] border border-[#E2DFD6] overflow-hidden shadow-sm w-full">
               <Image
                 src="/images/banners/category-saree.jpg"
                 alt="DHEERA Artisan Heritage Handcraft"
@@ -33,36 +33,36 @@ export function BrandStory() {
           </div>
 
           {/* Editorial Narrative */}
-          <div className="lg:col-span-7 space-y-6 order-1 lg:order-2">
+          <div className="lg:col-span-7 space-y-4 sm:space-y-6 order-1 lg:order-2 w-full">
             <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-luxury text-[#AA9160] font-semibold">
               <span>✦</span>
               <span>Our Story & Vision</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-[#176B45] leading-[1.18] font-normal">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-[#176B45] leading-[1.18] font-normal break-words">
               Rooted in Heritage. <br />
               Made for Today.
             </h2>
 
-            <div className="space-y-4 text-sm sm:text-base text-[#74786F] leading-relaxed font-normal">
+            <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm md:text-base text-[#74786F] leading-relaxed font-normal break-words">
               <p>
                 DHEERA was born from an intimate reverence for India&apos;s living textile heritage and a conviction that age-old artisanal craft belongs effortlessly in the modern, global wardrobe.
               </p>
               <p>
                 From hand-selected pure Chanderis to intricate zardozi and delicate scalloped borders, every piece is shaped in our Indian ateliers by master craftsmen who have practiced their art across generations.
               </p>
-              <p className="font-serif italic text-[#315039] text-base sm:text-lg pt-1">
+              <p className="font-serif italic text-[#315039] text-sm sm:text-base md:text-lg pt-1">
                 &ldquo;We don&apos;t design for transient trends. We create enduring heirlooms that evoke confidence, poise, and quiet luxury.&rdquo;
               </p>
             </div>
 
-            <div className="pt-4 flex flex-wrap items-center gap-6">
+            <div className="pt-2 sm:pt-4 flex flex-wrap items-center gap-4 sm:gap-6">
               <Link href="/about">
-                <Button variant="primary" size="lg">
+                <Button variant="primary" size="lg" className="text-xs px-5 sm:px-6">
                   DISCOVER OUR PHILOSOPHY &nbsp;→
                 </Button>
               </Link>
-              <span className="text-[11px] uppercase tracking-luxury text-[#AA9160] font-medium">
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-luxury text-[#AA9160] font-medium">
                 {BRAND.philosophy}
               </span>
             </div>
@@ -72,4 +72,3 @@ export function BrandStory() {
     </section>
   );
 }
-

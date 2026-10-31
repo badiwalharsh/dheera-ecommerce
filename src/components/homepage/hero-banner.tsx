@@ -6,58 +6,58 @@ import { Button } from "@/components/ui/button";
 export function HeroBanner() {
   return (
     <section className="bg-[#EEEAE0] border-b border-[#E2DFD6] relative overflow-hidden">
-      <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 min-h-[580px] lg:min-h-[660px]">
+      <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 min-h-[520px] lg:min-h-[640px]">
         {/* Left Editorial Copy */}
-        <div className="lg:col-span-6 flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-16 lg:py-24">
-          <div className="space-y-1 mb-6">
-            <span className="text-[11px] uppercase tracking-luxury text-[#176B45] font-semibold block">
+        <div className="lg:col-span-6 flex flex-col justify-center px-4 sm:px-8 md:px-12 lg:px-16 py-12 sm:py-16 lg:py-24">
+          <div className="space-y-1 mb-4 sm:mb-6">
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-luxury text-[#176B45] font-semibold block">
               INDIAN HERITAGE
             </span>
-            <span className="text-[11px] uppercase tracking-luxury text-[#AA9160] font-semibold block">
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-luxury text-[#AA9160] font-semibold block">
               CONTEMPORARY SOUL
             </span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-[#176B45] leading-[1.12] mb-6 font-normal">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-[#176B45] leading-[1.15] sm:leading-[1.12] mb-4 sm:mb-6 font-normal break-words">
             Timeless Styles, <br className="hidden sm:block" />
             Yours Truly.
           </h1>
 
-          <p className="text-sm sm:text-base text-[#74786F] leading-relaxed max-w-lg mb-8 font-normal">
+          <p className="text-xs sm:text-sm md:text-base text-[#74786F] leading-relaxed max-w-lg mb-6 sm:mb-8 font-normal break-words">
             Handcrafted apparel inspired by Indian traditions, designed for the modern you.
           </p>
 
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <Link href="/collections">
-              <Button variant="primary" size="lg">
+              <Button variant="primary" size="lg" className="text-xs px-5 sm:px-6">
                 EXPLORE COLLECTIONS &nbsp;→
               </Button>
             </Link>
             <Link href="/product/custom">
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" className="text-xs px-5 sm:px-6">
                 BESPOKE ATELIER
               </Button>
             </Link>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-[#E2DFD6] flex flex-wrap items-center gap-6 sm:gap-8 text-[10px] sm:text-[11px] uppercase tracking-luxury text-[#315039]">
-            <div className="flex items-center gap-2">
+          <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-[#E2DFD6] flex flex-wrap items-center gap-4 sm:gap-8 text-[9px] sm:text-[10px] md:text-[11px] uppercase tracking-luxury text-[#315039]">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="text-[#AA9160]">✦</span>
               <span>Handcrafted in India</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="text-[#AA9160]">✦</span>
               <span>Made for the World</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="text-[#AA9160]">✦</span>
               <span>Custom Tailoring</span>
             </div>
           </div>
         </div>
 
-        {/* Right Editorial Imagery */}
-        <div className="lg:col-span-6 relative min-h-[440px] lg:min-h-full bg-[#FAF9F5] overflow-hidden">
+        {/* Right Editorial Imagery (Clean Portrait without Text or Carousel Artifacts) */}
+        <div className="lg:col-span-6 relative min-h-[380px] sm:min-h-[440px] lg:min-h-full bg-[#FAF9F5] overflow-hidden">
           <Image
             src="/images/banners/hero-editorial.jpg"
             alt="DHEERA — Indian Heritage, Contemporary Soul"
@@ -66,12 +66,6 @@ export function HeroBanner() {
             className="object-cover object-center transition-transform duration-1000 hover:scale-102"
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent lg:hidden" />
-          <div className="absolute bottom-6 right-6 text-right hidden sm:block">
-            <span className="text-[10px] tracking-luxury uppercase text-white/90 drop-shadow-sm bg-black/30 backdrop-blur-sm px-3 py-1.5 border border-white/20">
-              Dressed in Heritage
-            </span>
-          </div>
         </div>
       </div>
     </section>

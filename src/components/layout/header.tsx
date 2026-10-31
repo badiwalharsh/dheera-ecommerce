@@ -6,13 +6,15 @@ import { BrandLogo } from "@/components/ui/brand-logo";
 import { DesktopNav } from "@/components/navigation/desktop-nav";
 import { MobileNav } from "@/components/navigation/mobile-nav";
 import { Container } from "@/components/ui/container";
-import { Search, ShoppingBag, Heart, Menu, X } from "lucide-react";
+import { useShop } from "@/context/shop-context";
+import { Search, ShoppingBag, Heart, User, Menu, X } from "lucide-react";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { wishlistCount, cartCount, setSearchOpen } = useShop();
 
   return (
-    <header className="sticky top-0 z-40 bg-[#FAF9F5]/90 backdrop-blur-md border-b border-dheera-line/60 transition-all">
+    <header className="sticky top-0 z-40 bg-[#FAF9F5]/95 backdrop-blur-md border-b border-[#E2DFD6] transition-all">
       <Container size="default">
         <div className="flex items-center justify-between h-20 md:h-24">
           {/* Mobile hamburger toggle */}
@@ -20,48 +22,70 @@ export function Header() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-dheera-forest-green hover:text-dheera-muted-gold transition-colors focus:outline-none"
+              className="p-2 text-[#176B45] hover:text-[#AA9160] transition-colors focus:outline-none"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
 
-          {/* Desktop Left Nav Links */}
-          <DesktopNav position="left" />
+          {/* Left Navigation (Home, Shop, Collections, Customise, Our Story) */}
+          <div className="hidden lg:flex items-center flex-1">
+            <DesktopNav />
+          </div>
 
           {/* Centered Brand Logo */}
           <div className="flex-shrink-0 flex items-center justify-center">
             <BrandLogo size="md" />
           </div>
 
-          {/* Desktop Right Nav Links */}
-          <DesktopNav position="right" />
-
-          {/* Right Tools (Search, Wishlist, Bag) */}
-          <div className="flex items-center gap-3 md:gap-5">
+          {/* Right Navigation & Tools (Search, Account, Wishlist, Shopping Bag) */}
+          <div className="flex items-center justify-end gap-2 sm:gap-4 md:gap-5 flex-1">
+            {/* Search Trigger */}
             <button
               type="button"
-              className="p-2 text-dheera-forest-green hover:text-dheera-muted-gold transition-colors"
-              aria-label="Search"
+              onClick={() => setSearchOpen(true)}
+              className="p-2 text-[#176B45] hover:text-[#AA9160] transition-colors focus:outline-none group relative"
+              aria-label="Search Collection"
             >
               <Search className="w-4 h-4 md:w-5 md:h-5" />
             </button>
 
+            {/* Account Link */}
             <Link
               href="/account"
-              className="p-2 text-dheera-forest-green hover:text-dheera-muted-gold transition-colors hidden sm:inline-flex"
+              className="p-2 text-[#176B45] hover:text-[#AA9160] transition-colors hidden sm:inline-flex"
+              aria-label="Account"
+            >
+              <User className="w-4 h-4 md:w-5 md:h-5" />
+            </Link>
+
+            {/* Wishlist Link with Count Badge */}
+            <Link
+              href="/account"
+              className="p-2 text-[#176B45] hover:text-[#AA9160] transition-colors relative"
               aria-label="Wishlist"
             >
               <Heart className="w-4 h-4 md:w-5 md:h-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-[#176B45] text-white text-[9px] flex items-center justify-center font-bold shadow-sm">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
 
+            {/* Shopping Bag with Item Count Badge */}
             <Link
               href="/cart"
-              className="p-2 text-dheera-forest-green hover:text-dheera-muted-gold transition-colors"
-              aria-label="Cart"
+              className="p-2 text-[#176B45] hover:text-[#AA9160] transition-colors relative"
+              aria-label="Shopping Bag"
             >
               <ShoppingBag className="w-4 h-4 md:w-5 md:h-5" />
+              {cartCount > 0 && (
+                <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-[#176B45] text-white text-[9px] flex items-center justify-center font-bold shadow-sm">
+                  {cartCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>
@@ -72,4 +96,3 @@ export function Header() {
     </header>
   );
 }
-

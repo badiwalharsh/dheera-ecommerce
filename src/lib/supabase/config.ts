@@ -32,3 +32,4 @@ export function getSafeSupabaseCredentials() {
 
   return { isConfigured, url, anonKey };
 }
+

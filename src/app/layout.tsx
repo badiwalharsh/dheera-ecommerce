@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
-import { BRAND } from "@/constants";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { ShopProvider } from "@/context/shop-context";
+import { SearchModal } from "@/components/navigation/search-modal";
+import { QuickViewModal } from "@/components/products/quick-view-modal";
 import "./globals.css";
 
 const serifFont = Playfair_Display({
@@ -50,13 +52,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${serifFont.variable} ${sansFont.variable}`}>
-      <body className="min-h-screen flex flex-col bg-dheera-warm-ivory text-dheera-primary-text selection:bg-dheera-muted-gold selection:text-white">
-        <AnnouncementBar />
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+      <body className="min-h-screen flex flex-col bg-[#EEEAE0] text-[#252A25] selection:bg-[#AA9160] selection:text-white">
+        <ShopProvider>
+          <AnnouncementBar />
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <SearchModal />
+          <QuickViewModal />
+        </ShopProvider>
       </body>
     </html>
   );
 }
-

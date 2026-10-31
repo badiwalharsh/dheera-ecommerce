@@ -1,19 +1,19 @@
 import React from "react";
 import Link from "next/link";
 import { BrandLogo } from "@/components/ui/brand-logo";
-import { BRAND, NAV_LINKS } from "@/constants";
+import { BRAND, CATEGORIES } from "@/constants";
 import { Container } from "@/components/ui/container";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Mail, Clock } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-[#E9E6DD] text-dheera-primary-text border-t border-dheera-line/80 pt-16 pb-12 mt-20">
+    <footer className="bg-[#EEEAE0] text-[#252A25] border-t border-[#E2DFD6] pt-16 sm:pt-20 pb-12">
       <Container size="default">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-16 border-b border-dheera-line">
-          {/* Brand Intro Column */}
-          <div className="lg:col-span-5 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-16 border-b border-[#E2DFD6]">
+          {/* Brand Column */}
+          <div className="lg:col-span-4 space-y-4">
             <BrandLogo size="md" />
-            <p className="text-sm text-dheera-secondary-text leading-relaxed max-w-sm pt-2">
+            <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed max-w-sm pt-2">
               {BRAND.tagline} Handcrafted designer apparel, bespoke tailored outfits, and festive heirlooms made with intention in India.
             </p>
             <div className="pt-2">
@@ -21,81 +21,104 @@ export function Footer() {
                 href={BRAND.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs uppercase tracking-luxury text-dheera-forest-green hover:text-dheera-muted-gold font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs uppercase tracking-luxury text-[#176B45] hover:text-[#AA9160] font-medium transition-colors"
               >
                 <span>Instagram {BRAND.instagram}</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </a>
             </div>
+            <p className="text-[10px] uppercase tracking-luxury text-[#AA9160] font-semibold pt-1">
+              {BRAND.philosophy}
+            </p>
           </div>
 
-          {/* Quick Links */}
-          <div className="lg:col-span-2 space-y-4">
-            <h4 className="text-[11px] uppercase tracking-luxury text-dheera-forest-green font-medium">
+          {/* Shop & Collections Column */}
+          <div className="lg:col-span-3 space-y-4">
+            <h4 className="text-[11px] uppercase tracking-luxury text-[#176B45] font-semibold">
               Collections
             </h4>
-            <ul className="space-y-2.5 text-xs text-dheera-secondary-text">
-              {NAV_LINKS.slice(2, 6).map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="hover:text-dheera-forest-green transition-colors">
-                    {link.label}
+            <ul className="space-y-2.5 text-xs text-[#74786F]">
+              <li>
+                <Link href="/collections" className="hover:text-[#176B45] transition-colors">
+                  All Collections
+                </Link>
+              </li>
+              {CATEGORIES.map((cat) => (
+                <li key={cat.id}>
+                  <Link href={cat.href} className="hover:text-[#176B45] transition-colors">
+                    {cat.name}
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link href="/shop" className="hover:text-[#176B45] transition-colors">
+                  New Arrivals
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Atelier */}
+          {/* Atelier & Story Column */}
           <div className="lg:col-span-2 space-y-4">
-            <h4 className="text-[11px] uppercase tracking-luxury text-dheera-forest-green font-medium">
+            <h4 className="text-[11px] uppercase tracking-luxury text-[#176B45] font-semibold">
               Atelier
             </h4>
-            <ul className="space-y-2.5 text-xs text-dheera-secondary-text">
+            <ul className="space-y-2.5 text-xs text-[#74786F]">
               <li>
-                <Link href="/product/custom" className="hover:text-dheera-forest-green transition-colors">
-                  Custom Orders
+                <Link href="/product/custom" className="hover:text-[#176B45] transition-colors">
+                  Bespoke Custom Orders
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-dheera-forest-green transition-colors">
-                  Brand Story
+                <Link href="/about" className="hover:text-[#176B45] transition-colors">
+                  Our Story & Craft
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-dheera-forest-green transition-colors">
-                  Inquiries
+                <Link href="/contact" className="hover:text-[#176B45] transition-colors">
+                  Atelier Inquiries
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Client Assistance */}
+          {/* Customer Care Column */}
           <div className="lg:col-span-3 space-y-4">
-            <h4 className="text-[11px] uppercase tracking-luxury text-dheera-forest-green font-medium">
+            <h4 className="text-[11px] uppercase tracking-luxury text-[#176B45] font-semibold">
               Client Care
             </h4>
-            <ul className="space-y-2.5 text-xs text-dheera-secondary-text">
-              <li>
-                <a href={`mailto:${BRAND.contactEmail}`} className="hover:text-dheera-forest-green transition-colors">
+            <ul className="space-y-2.5 text-xs text-[#74786F]">
+              <li className="flex items-center gap-2">
+                <Mail className="w-3.5 h-3.5 text-[#176B45] flex-shrink-0" />
+                <a href={`mailto:${BRAND.contactEmail}`} className="hover:text-[#176B45] transition-colors">
                   {BRAND.contactEmail}
                 </a>
               </li>
-              <li className="text-[11px] text-dheera-secondary-text/80 pt-1">
-                Mon – Sat, 10am – 7pm IST
+              <li className="flex items-start gap-2 pt-1">
+                <Clock className="w-3.5 h-3.5 text-[#176B45] flex-shrink-0 mt-0.5" />
+                <span>{BRAND.contactHours}</span>
+              </li>
+              <li className="pt-2 text-[11px] text-[#74786F]/80">
+                Complimentary Shipping on selected domestic orders. Global courier delivery available.
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Subfooter */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-[11px] text-dheera-secondary-text/80 gap-4">
-          <p>© {new Date().getFullYear()} DHEERA — Apparel & Lifestyle. {BRAND.philosophy}.</p>
-          <div className="flex items-center gap-6">
-            <Link href="/about" className="hover:text-dheera-forest-green">
-              Philosophy
+        {/* Bottom Bar: Copyright & Policies */}
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-[11px] text-[#74786F]/80 gap-4">
+          <p>© {new Date().getFullYear()} DHEERA — Apparel & Lifestyle. All rights reserved. {BRAND.philosophy}.</p>
+          <div className="flex flex-wrap items-center gap-5 sm:gap-6">
+            <Link href="/about" className="hover:text-[#176B45] transition-colors">
+              Brand Philosophy
             </Link>
-            <Link href="/admin" className="hover:text-dheera-forest-green uppercase text-[10px] tracking-wider">
-              Admin
+            <span className="text-[#AA9160]">✦</span>
+            <Link href="/contact" className="hover:text-[#176B45] transition-colors">
+              Care & Returns
+            </Link>
+            <span className="text-[#AA9160]">✦</span>
+            <Link href="/admin" className="hover:text-[#176B45] transition-colors uppercase text-[10px] tracking-wider">
+              Staff Portal
             </Link>
           </div>
         </div>
@@ -103,4 +126,3 @@ export function Footer() {
     </footer>
   );
 }
-

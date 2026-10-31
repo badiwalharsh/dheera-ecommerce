@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand Color Tokens */
+    --dheera-forest-green: #176B45;
+    --dheera-dark-green: #315039;
+    --dheera-warm-ivory: #EEEAE0;
+    --dheera-cream: #FAF9F5;
+    --dheera-muted-gold: #AA9160;
+    --dheera-primary-text: #252A25;
+    --dheera-secondary-text: #74786F;
+    --dheera-line: #E2DFD6;
+
+    /* Theme Tokens as HSL */
+    --background: 44 26% 91%; /* #EEEAE0 Warm Ivory */
+    --foreground: 120 7% 15%; /* #252A25 Primary Text */
+
+    --card: 48 33% 97%; /* #FAF9F5 Soft Cream */
+    --card-foreground: 120 7% 15%;
+
+    --primary: 154 65% 25%; /* #176B45 Forest Green */
+    --primary-foreground: 48 33% 97%;
+
+    --secondary: 134 18% 26%; /* #315039 Dark Olive Green */
+    --secondary-foreground: 48 33% 97%;
+
+    --muted: 42 16% 86%; /* #E2DFD6 */
+    --muted-foreground: 90 4% 45%; /* #74786F Secondary Text */
+
+    --accent: 39 28% 52%; /* #AA9160 Muted Gold */
+    --accent-foreground: 48 33% 97%;
+
+    --border: 42 16% 86%; /* #E2DFD6 */
+    --input: 42 16% 86%;
+    --ring: 154 65% 25%;
+  }
+
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--dheera-warm-ivory);
+    color: var(--dheera-primary-text);
+    font-family: var(--font-sans), "DM Sans", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif), "Playfair Display", Georgia, serif;
+    font-weight: 400;
+  }
+}
+
+/* Editorial Minimalist Link Underline */
+.editorial-hover {
+  position: relative;
+  transition: color 0.25s ease;
+}
+
+.editorial-hover::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #AA9160;
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+
+.editorial-hover:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}

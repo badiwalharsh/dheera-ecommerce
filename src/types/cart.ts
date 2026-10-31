@@ -180,4 +180,5 @@ export interface ConfirmedOrderDetails {
   trackingNumber?: string;
   shippingCarrier?: string;
   notes?: string;
+  adminNotes?: string;
 }

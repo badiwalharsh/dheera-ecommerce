@@ -8,15 +8,28 @@ export async function POST(req: Request) {
     const { items, pincode } = body;
 
     const validation = await validateCartServer(items);
+
+    if (!validation.isValid) {
+      return NextResponse.json(
+        {
+          success: false,
+          isValid: false,
+          errors: validation.errors,
+          items: validation.items,
+        },
+        { status: 400 }
+      );
+    }
+
     const shipping = calculateShipping(validation.subtotal, pincode);
 
     return NextResponse.json({
       success: true,
-      isValid: validation.isValid,
+      isValid: true,
       items: validation.items,
       subtotal: validation.subtotal,
       shipping,
-      errors: validation.errors,
+      errors: [],
     });
   } catch (err: any) {
     return NextResponse.json(

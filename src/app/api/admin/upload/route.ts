@@ -5,6 +5,8 @@ import { createClientServer } from "@/lib/supabase/server";
 import crypto from "crypto";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
+const ALLOWED_FOLDERS = ["products", "categories", "banners", "customizations"];
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 export async function POST(req: NextRequest) {
@@ -14,14 +16,19 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const folder = (formData.get("folder") as string) || "products";
+    const rawFolder = (formData.get("folder") as string) || "products";
 
     if (!file) {
       return NextResponse.json({ success: false, error: "No image file provided." }, { status: 400 });
     }
 
-    // 1. Validate file type
-    if (!ALLOWED_MIME_TYPES.includes(file.type.toLowerCase())) {
+    // 1. Sanitize folder to prevent path traversal
+    const cleanFolder = rawFolder.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    const folder = ALLOWED_FOLDERS.includes(cleanFolder) ? cleanFolder : "products";
+
+    // 2. Validate file type & extension
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    if (!ALLOWED_MIME_TYPES.includes(file.type.toLowerCase()) || !ALLOWED_EXTENSIONS.includes(ext)) {
       return NextResponse.json(
         {
           success: false,
@@ -31,7 +38,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Validate file size
+    // 3. Validate file size
     if (file.size > MAX_FILE_SIZE_BYTES) {
       return NextResponse.json(
         {
@@ -42,7 +49,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const filename = `${folder}/${Date.now()}-${crypto.randomBytes(6).toString("hex")}.${ext}`;
 
     // 3. Upload to Supabase Storage if live

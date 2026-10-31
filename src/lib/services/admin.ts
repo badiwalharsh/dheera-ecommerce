@@ -867,6 +867,19 @@ export async function getAdminOrderById(
   );
 }
 
+const ALLOWED_STATUS_TRANSITIONS: Record<string, OrderStatus[]> = {
+  pending_payment: ["cancelled"],
+  pending: ["cancelled"],
+  payment_pending: ["cancelled"],
+  confirmed: ["processing", "dispatched", "cancelled"],
+  processing: ["dispatched", "cancelled"],
+  dispatched: ["delivered", "cancelled"],
+  out_for_delivery: ["delivered", "cancelled"],
+  delivered: [], // Terminal state
+  cancelled: [], // Terminal state
+  refunded: [], // Terminal state
+};
+
 export async function updateAdminOrderFulfillment(params: {
   orderNumber: string;
   newStatus: OrderStatus;
@@ -880,13 +893,28 @@ export async function updateAdminOrderFulfillment(params: {
   const order = await getAdminOrderById(orderNumber);
   if (!order) return { success: false, error: "Order not found" };
 
-  // Strict Security Guard: Never allow administrators to manually mark unpaid orders as paid!
-  if (order.status === "pending_payment" && newStatus === "confirmed" && order.paymentStatus !== "captured") {
+  // 1. Strict Security Guard: Never allow administrators to manually mark unpaid orders as paid!
+  if (
+    (order.status === "pending_payment" || order.status === "pending" || order.status === "payment_pending") &&
+    (newStatus === "confirmed" || newStatus === "processing" || newStatus === "dispatched" || newStatus === "delivered") &&
+    order.paymentStatus !== "captured"
+  ) {
     return {
       success: false,
       error:
         "Security Error: Cannot manually mark an unpaid order as paid. Payment status is strictly controlled by Razorpay verification.",
     };
+  }
+
+  // 2. FSM Transition Validation: Enforce strict sequence and terminal state protection
+  if (order.status !== newStatus) {
+    const allowed = ALLOWED_STATUS_TRANSITIONS[order.status] || [];
+    if (!allowed.includes(newStatus)) {
+      return {
+        success: false,
+        error: `Invalid order state transition: Cannot transition order #${orderNumber} from "${order.status}" to "${newStatus}". Order status flow is strictly sequential and terminal states cannot be re-opened.`,
+      };
+    }
   }
 
   const updated = await updateOrderStatusAdmin(orderNumber, newStatus, {

@@ -27,9 +27,13 @@ export async function GET(
       );
     }
 
+    // Strip private internal admin notes before sending to customer
+    const customerSafeOrder = { ...order };
+    delete (customerSafeOrder as { adminNotes?: string }).adminNotes;
+
     return NextResponse.json({
       success: true,
-      order,
+      order: customerSafeOrder,
     });
   } catch (err: any) {
     return NextResponse.json(

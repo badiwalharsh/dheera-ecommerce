@@ -2,6 +2,7 @@ import { CartItem } from "@/types/cart";
 import { SAMPLE_PRODUCTS } from "@/constants";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClientServer } from "@/lib/supabase/server";
+import { getAllProducts } from "@/lib/data/products";
 
 export interface ValidatedItem {
   id: string;
@@ -195,8 +196,9 @@ export async function validateCartServer(rawItems: CartItem[]): Promise<Validati
       continue;
     }
 
-    // Fall back to SAMPLE_PRODUCTS
-    const fixtureProduct = SAMPLE_PRODUCTS.find(
+    // Fall back to authoritative live catalog (including dynamically managed products)
+    const liveProducts = await getAllProducts();
+    const fixtureProduct = liveProducts.find(
       (p) => p.id === clientItem.productId || p.slug === clientItem.productSlug
     );
 
@@ -205,9 +207,33 @@ export async function validateCartServer(rawItems: CartItem[]): Promise<Validati
       continue;
     }
 
-    const matchedVariant = fixtureProduct.variants.find(
-      (v) => v.size === clientItem.size && (!clientItem.colour || v.colour === clientItem.colour)
-    );
+    if (fixtureProduct.inStock === false) {
+      errors.push(`Garment "${fixtureProduct.name}" has been archived and is not available for purchase.`);
+      continue;
+    }
+
+    // Match variant:
+    // 1. Exact match on size & colour
+    // 2. Match on size (supporting bespoke colorways)
+    // 3. For single-variant garments (e.g. Sarees, Dupattas, Free Size), match the sole drape variant
+    const clientSizeLower = (clientItem.size || "").toLowerCase();
+    const clientColourLower = (clientItem.colour || "").toLowerCase();
+
+    const matchedVariant =
+      fixtureProduct.variants.find(
+        (v) =>
+          v.size.toLowerCase() === clientSizeLower &&
+          (!clientItem.colour || v.colour?.toLowerCase() === clientColourLower)
+      ) ||
+      fixtureProduct.variants.find((v) => v.size.toLowerCase() === clientSizeLower) ||
+      (fixtureProduct.variants.length === 1 ? fixtureProduct.variants[0] : undefined);
+
+    if (!matchedVariant || matchedVariant.inStock === false) {
+      errors.push(
+        `Variant size "${clientItem.size}" of "${fixtureProduct.name}" is not available in active stock.`
+      );
+      continue;
+    }
 
     const realTimeStock = getAvailableStock(
       fixtureProduct.id,

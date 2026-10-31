@@ -52,9 +52,13 @@ export async function GET(
     // Generate real-time luxury order tracking timeline
     const trackingTimeline = generateTrackingTimeline(order);
 
+    // Strip private internal admin notes before sending to customer
+    const customerSafeOrder = { ...order };
+    delete (customerSafeOrder as { adminNotes?: string }).adminNotes;
+
     return NextResponse.json({
       order: {
-        ...order,
+        ...customerSafeOrder,
         trackingTimeline,
       },
     });

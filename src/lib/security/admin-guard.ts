@@ -28,6 +28,110 @@ const AUTHORIZED_ADMINS: AdminUser[] = [
 
 export { AUTHORIZED_ADMINS };
 
+const ADMIN_SECRET =
+  process.env.ADMIN_SESSION_SECRET ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  "dheera-luxury-atelier-admin-hmac-secret-salt-2026";
+
+/**
+ * Cryptographically signs an administrative session payload using HMAC-SHA256
+ */
+export function signAdminToken(user: AdminUser): string {
+  const payload = JSON.stringify({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: "admin",
+    adminRole: user.adminRole,
+    iat: Date.now(),
+    exp: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days expiration
+  });
+
+  const b64Payload = Buffer.from(payload).toString("base64url");
+  const signature = crypto
+    .createHmac("sha256", ADMIN_SECRET)
+    .update(b64Payload)
+    .digest("base64url");
+
+  return `${b64Payload}.${signature}`;
+}
+
+/**
+ * Cryptographically verifies and validates an administrative session token
+ */
+export function verifyAdminToken(token: string): AdminUser | null {
+  if (!token || typeof token !== "string") return null;
+
+  // 1. Signed HMAC-SHA256 format (<b64Payload>.<signature>)
+  const parts = token.split(".");
+  if (parts.length === 2) {
+    const [b64Payload, sig] = parts;
+    const expectedSig = crypto
+      .createHmac("sha256", ADMIN_SECRET)
+      .update(b64Payload)
+      .digest("base64url");
+
+    if (
+      sig.length === expectedSig.length &&
+      crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))
+    ) {
+      try {
+        const payload = JSON.parse(Buffer.from(b64Payload, "base64url").toString("utf-8"));
+        if (payload.exp && Date.now() > payload.exp) {
+          return null; // Expired token
+        }
+        if (
+          payload.email &&
+          (payload.adminRole === "super_admin" || payload.adminRole === "store_manager")
+        ) {
+          return {
+            id: payload.id || "admin-session",
+            email: String(payload.email),
+            name: String(payload.name || "Administrator"),
+            role: "admin",
+            adminRole: payload.adminRole as AdminRole,
+          };
+        }
+      } catch {
+        return null;
+      }
+    }
+    return null; // Signature mismatch / forged token
+  }
+
+  // 2. Strict Dev/Preview fallback for fixture admin tokens
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      let raw = token;
+      try {
+        raw = decodeURIComponent(token);
+      } catch {}
+
+      let parsed: Record<string, unknown> | null = null;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        try {
+          parsed = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
+        } catch {}
+      }
+
+      if (parsed && typeof parsed === "object" && parsed.email) {
+        const email = String(parsed.email).toLowerCase();
+        const matched = AUTHORIZED_ADMINS.find((a) => a.email.toLowerCase() === email);
+        if (matched) {
+          const role = parsed.adminRole || parsed.role;
+          if (role === matched.adminRole) {
+            return { ...matched };
+          }
+        }
+      }
+    } catch {}
+  }
+
+  return null;
+}
+
 /**
  * Extracts and verifies the authenticated admin user from server context
  */
@@ -66,56 +170,36 @@ export async function getAuthenticatedAdmin(
     }
   }
 
-  // 2. Cookie-based admin session
+  // 2. Cryptographically verified cookie session
   try {
     const cookieStore = cookies();
     const rawCookie =
-      cookieStore.get("dheera_admin_session")?.value ||
-      cookieStore.get("dheera_admin_token")?.value;
+      cookieStore.get("dheera_admin_token")?.value ||
+      cookieStore.get("dheera_admin_session")?.value;
 
     if (rawCookie) {
-      let parsed: Record<string, unknown> | null = null;
-      try {
-        parsed = JSON.parse(decodeURIComponent(rawCookie));
-      } catch {
-        try {
-          parsed = JSON.parse(Buffer.from(rawCookie, "base64").toString("utf-8"));
-        } catch {
-          // not base64 json
-        }
-      }
-
-      if (parsed && typeof parsed === "object" && parsed.email) {
-        const email = String(parsed.email);
-        const role = String(parsed.adminRole || parsed.role || "super_admin");
-        const resolvedRole: AdminRole = role === "store_manager" ? "store_manager" : "super_admin";
-
-        return {
-          id: (parsed.id as string) || "admin-session",
-          email,
-          name: (parsed.name as string) || "Administrator",
-          role: "admin",
-          adminRole: resolvedRole,
-        };
+      const verified = verifyAdminToken(rawCookie);
+      if (verified) {
+        return verified;
       }
     }
   } catch {
     // Cookie parse fail
   }
 
-  // 3. Fallback authorization headers for automated security & test suites
-  if (req) {
-    const adminHeader = req.headers.get("x-admin-role");
-    const adminEmail = req.headers.get("x-admin-email");
-    const adminId = req.headers.get("x-admin-id");
-    if (adminHeader && adminEmail) {
-      if (adminHeader === "super_admin" || adminHeader === "store_manager") {
+  // 3. Internal test bypass ONLY with matching secret key (Never raw unauthenticated headers)
+  if (req && process.env.NODE_ENV !== "production") {
+    const internalSecret = req.headers.get("x-dheera-internal-admin-key");
+    if (internalSecret && internalSecret === ADMIN_SECRET) {
+      const adminRole = req.headers.get("x-admin-role");
+      const adminEmail = req.headers.get("x-admin-email");
+      if (adminRole === "super_admin" || adminRole === "store_manager") {
         return {
-          id: adminId || "admin-test",
-          email: adminEmail,
-          name: req.headers.get("x-admin-name") || "DHEERA Admin",
+          id: req.headers.get("x-admin-id") || "admin-internal",
+          email: adminEmail || "admin@dheera.in",
+          name: req.headers.get("x-admin-name") || "Internal Admin",
           role: "admin",
-          adminRole: adminHeader as AdminRole,
+          adminRole: adminRole as AdminRole,
         };
       }
     }

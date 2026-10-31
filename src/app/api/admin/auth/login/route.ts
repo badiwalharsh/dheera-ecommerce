@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClientServer } from "@/lib/supabase/server";
-import { AUTHORIZED_ADMINS, logAdminAction } from "@/lib/security/admin-guard";
+import { AUTHORIZED_ADMINS, logAdminAction, signAdminToken } from "@/lib/security/admin-guard";
 import { AdminRole, AdminUser } from "@/types/admin";
+
+// In-memory sliding window rate limiter for admin login (max 5 failed attempts per 15 mins)
+const FAILED_LOGIN_ATTEMPTS = new Map<string, { count: number; resetAt: number }>();
+
+function getRateLimitKey(req: NextRequest, email: string): string {
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") ||
+    "127.0.0.1";
+  return `${ip}_${email}`;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,6 +28,26 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+    const rateLimitKey = getRateLimitKey(req, cleanEmail);
+
+    // Check brute-force rate limit
+    const now = Date.now();
+    const attemptRecord = FAILED_LOGIN_ATTEMPTS.get(rateLimitKey);
+    if (attemptRecord && now < attemptRecord.resetAt && attemptRecord.count >= 5) {
+      const retryAfterSec = Math.ceil((attemptRecord.resetAt - now) / 1000);
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Too many failed login attempts. Account temporarily locked for security. Please try again later.",
+          retryAfter: retryAfterSec,
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(retryAfterSec) },
+        }
+      );
+    }
+
     let authenticatedAdmin: AdminUser | null = null;
 
     // 1. Supabase Auth if configured
@@ -74,11 +105,23 @@ export async function POST(req: NextRequest) {
     }
 
     if (!authenticatedAdmin) {
+      // Record failed attempt for rate limiting
+      const current = FAILED_LOGIN_ATTEMPTS.get(rateLimitKey);
+      if (!current || now > current.resetAt) {
+        FAILED_LOGIN_ATTEMPTS.set(rateLimitKey, { count: 1, resetAt: now + 15 * 60 * 1000 });
+      } else {
+        current.count += 1;
+        FAILED_LOGIN_ATTEMPTS.set(rateLimitKey, current);
+      }
+
       return NextResponse.json(
         { success: false, error: "Invalid administrative credentials." },
         { status: 401 }
       );
     }
+
+    // Reset rate limiter on successful authentication
+    FAILED_LOGIN_ATTEMPTS.delete(rateLimitKey);
 
     const clientAdminPayload = {
       id: authenticatedAdmin.id,
@@ -94,7 +137,9 @@ export async function POST(req: NextRequest) {
       message: `Welcome to DHEERA Atelier Management, ${authenticatedAdmin.name}.`,
     });
 
-    const cookieValue = encodeURIComponent(JSON.stringify(clientAdminPayload));
+    // Generate cryptographically signed HMAC token
+    const signedToken = signAdminToken(authenticatedAdmin);
+
     const cookieOpts = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -104,8 +149,8 @@ export async function POST(req: NextRequest) {
     };
 
     // Set secure admin session cookies
-    response.cookies.set("dheera_admin_session", cookieValue, cookieOpts);
-    response.cookies.set("dheera_admin_token", cookieValue, cookieOpts);
+    response.cookies.set("dheera_admin_token", signedToken, cookieOpts);
+    response.cookies.set("dheera_admin_session", signedToken, cookieOpts);
 
     await logAdminAction({
       admin: authenticatedAdmin,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { MetricCard } from "@/components/admin/metric-card";
@@ -13,7 +13,7 @@ export default function AdminDashboardPage() {
   const [timeframe, setTimeframe] = useState<"today" | "7d" | "30d" | "90d" | "all">("30d");
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchStats = async (tf: typeof timeframe) => {
+  const fetchStats = useCallback(async (tf: typeof timeframe) => {
     setIsLoading(true);
     try {
       const res = await fetch(`/api/admin/dashboard?timeframe=${tf}`);
@@ -28,11 +28,11 @@ export default function AdminDashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchStats(timeframe);
-  }, [timeframe]);
+  }, [timeframe, fetchStats]);
 
   return (
     <AdminLayout>

@@ -1,7 +1,9 @@
 import { SAMPLE_PRODUCTS, CATEGORIES } from "@/constants";
-import { CatalogProduct, ProductFilterState, SortOption } from "@/types/ecommerce";
+import { CatalogProduct, CategoryInfo, ProductFilterState, SortOption } from "@/types/ecommerce";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClientServer } from "@/lib/supabase/server";
+
+export type { CategoryInfo };
 
 // Fallback high-fidelity development fixtures mapped to CatalogProduct interface
 const FIXTURE_PRODUCTS: CatalogProduct[] = SAMPLE_PRODUCTS.map((p) => ({
@@ -33,15 +35,7 @@ const FIXTURE_PRODUCTS: CatalogProduct[] = SAMPLE_PRODUCTS.map((p) => ({
   isDevelopmentFixture: true,
 }));
 
-export interface CategoryInfo {
-  id: string;
-  name: string;
-  slug: string;
-  subtitle: string;
-  description: string;
-  image: string;
-  href: string;
-}
+
 
 /**
  * Returns data source telemetry without exposing sensitive credentials

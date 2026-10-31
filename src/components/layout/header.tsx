@@ -11,7 +11,7 @@ import { Search, ShoppingBag, Heart, User, Menu, X } from "lucide-react";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { wishlistCount, cartCount, setSearchOpen } = useShop();
+  const { wishlistCount, cartCount, setSearchOpen, openBag } = useShop();
 
   return (
     <header className="sticky top-0 z-40 bg-[#FAF9F5]/95 backdrop-blur-md border-b border-[#E2DFD6] transition-all">
@@ -74,11 +74,12 @@ export function Header() {
               )}
             </Link>
 
-            {/* Shopping Bag with Item Count Badge */}
-            <Link
-              href="/cart"
-              className="p-1.5 sm:p-2 text-[#176B45] hover:text-[#AA9160] transition-colors relative"
-              aria-label="Shopping Bag"
+            {/* Shopping Bag Trigger with Live Item Count Badge */}
+            <button
+              type="button"
+              onClick={openBag}
+              className="p-1.5 sm:p-2 text-[#176B45] hover:text-[#AA9160] transition-colors relative focus:outline-none"
+              aria-label="Open Shopping Bag"
             >
               <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
               {cartCount > 0 && (
@@ -86,7 +87,7 @@ export function Header() {
                   {cartCount}
                 </span>
               )}
-            </Link>
+            </button>
           </div>
         </div>
       </Container>

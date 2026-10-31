@@ -65,9 +65,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
   const handleAddToBag = () => {
     if (!isAvailable) return;
-    for (let i = 0; i < quantity; i++) {
-      addToBag(product, selectedSize);
-    }
+    addToBag(product, selectedSize, selectedColor, quantity);
   };
 
   const discountPercent = product.originalPrice

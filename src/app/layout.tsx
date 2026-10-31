@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import { ShopProvider } from "@/context/shop-context";
 import { SearchModal } from "@/components/navigation/search-modal";
 import { QuickViewModal } from "@/components/products/quick-view-modal";
+import { CartDrawer } from "@/components/cart/cart-drawer";
 import "./globals.css";
 
 const serifFont = Playfair_Display({
@@ -60,6 +61,7 @@ export default function RootLayout({
           <Footer />
           <SearchModal />
           <QuickViewModal />
+          <CartDrawer />
         </ShopProvider>
       </body>
     </html>

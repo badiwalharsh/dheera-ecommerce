@@ -24,3 +24,4 @@ export function DesktopNav({ position = "left" }: DesktopNavProps) {
     </nav>
   );
 }
+

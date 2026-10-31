@@ -1,16 +1,17 @@
+import "server-only";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { getSafeSupabaseCredentials } from "./config";
 
 /**
  * Creates a server-side Supabase client for Server Components, Route Handlers, and Server Actions.
+ * STRICTLY SERVER-ONLY.
  */
 export function createClientServer() {
   const cookieStore = cookies();
+  const { url, anonKey } = getSafeSupabaseCredentials();
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-dheera.supabase.co";
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
-
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
+  return createServerClient(url, anonKey, {
     cookies: {
       get(name: string) {
         return cookieStore.get(name)?.value;

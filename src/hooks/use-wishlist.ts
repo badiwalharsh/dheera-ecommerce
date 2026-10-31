@@ -14,3 +14,4 @@ export function useWishlist() {
     isInWishlist: (id: string) => wishlistIds.includes(id),
   };
 }
+

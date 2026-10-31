@@ -109,3 +109,4 @@ export const SAMPLE_PRODUCTS = [
     description: "A deep emerald occasionwear concept with intricate antique-gold thread embellishment.",
   },
 ] as const;
+

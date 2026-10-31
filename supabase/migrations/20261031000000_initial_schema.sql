@@ -1,5 +1,5 @@
 -- ==============================================================================
--- DHEERA — Supabase Initial Relational Database Migration
+-- DHEERA — Supabase Initial Relational Database Migration (Hardened)
 -- Brand: DHEERA (Apparel & Lifestyle)
 -- ==============================================================================
 
@@ -9,46 +9,61 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 1. ENUMS
 -- ==============================================================================
 
-CREATE TYPE user_role AS ENUM ('customer', 'admin', 'staff');
+DO $$ BEGIN
+  CREATE TYPE user_role AS ENUM ('customer', 'admin', 'staff');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TYPE order_status AS ENUM (
-  'pending',
-  'payment_pending',
-  'confirmed',
-  'processing',
-  'dispatched',
-  'out_for_delivery',
-  'delivered',
-  'cancelled',
-  'refunded'
-);
+DO $$ BEGIN
+  CREATE TYPE order_status AS ENUM (
+    'pending',
+    'payment_pending',
+    'confirmed',
+    'processing',
+    'dispatched',
+    'out_for_delivery',
+    'delivered',
+    'cancelled',
+    'refunded'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TYPE payment_status AS ENUM (
-  'created',
-  'authorized',
-  'captured',
-  'failed',
-  'refunded'
-);
+DO $$ BEGIN
+  CREATE TYPE payment_status AS ENUM (
+    'created',
+    'authorized',
+    'captured',
+    'failed',
+    'refunded'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TYPE payment_method AS ENUM (
-  'razorpay',
-  'cod',
-  'upi',
-  'card',
-  'netbanking'
-);
+DO $$ BEGIN
+  CREATE TYPE payment_method AS ENUM (
+    'razorpay',
+    'cod',
+    'upi',
+    'card',
+    'netbanking'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TYPE customization_status AS ENUM (
-  'submitted',
-  'under_review',
-  'consultation_scheduled',
-  'fabric_sourced',
-  'in_tailoring',
-  'ready',
-  'dispatched',
-  'closed'
-);
+DO $$ BEGIN
+  CREATE TYPE customization_status AS ENUM (
+    'submitted',
+    'under_review',
+    'consultation_scheduled',
+    'fabric_sourced',
+    'in_tailoring',
+    'ready',
+    'dispatched',
+    'closed'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ==============================================================================
 -- 2. PROFILES (1:1 with auth.users)
@@ -128,7 +143,7 @@ CREATE TABLE IF NOT EXISTS public.product_images (
 CREATE TABLE IF NOT EXISTS public.product_variants (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
-  size TEXT NOT NULL, -- 'XS', 'S', 'M', 'L', 'XL', 'Free Size'
+  size TEXT NOT NULL,
   colour TEXT,
   sku TEXT NOT NULL UNIQUE,
   price_modifier NUMERIC(10, 2) NOT NULL DEFAULT 0,
@@ -314,7 +329,71 @@ CREATE INDEX IF NOT EXISTS idx_wishlist_items_wishlist ON public.wishlist_items(
 CREATE INDEX IF NOT EXISTS idx_customization_user ON public.customization_requests(user_id);
 
 -- ==============================================================================
--- 14. ROW LEVEL SECURITY
+-- 14. SECURITY FUNCTIONS (WITH EXPLICIT SEARCH_PATH)
+-- ==============================================================================
+
+-- Security check for admin status with fixed search_path to prevent hijacking
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$;
+
+-- Trigger function to strictly prevent non-admin users from escalating their role
+CREATE OR REPLACE FUNCTION public.prevent_role_escalation()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role AND NOT public.is_admin() THEN
+    RAISE EXCEPTION 'SECURITY ERROR: Unauthorized attempt to modify user role.';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_prevent_role_escalation ON public.profiles;
+CREATE TRIGGER trg_prevent_role_escalation
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_role_escalation();
+
+-- Trigger function for new user registration with fixed search_path
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, role)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', 'Valued Customer'),
+    'customer'
+  );
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ==============================================================================
+-- 15. ROW LEVEL SECURITY (RLS) POLICIES
 -- ==============================================================================
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -333,56 +412,84 @@ ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.customization_requests ENABLE ROW LEVEL SECURITY;
 
-CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'admin'
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Catalog: Public Read Access
+CREATE POLICY "Public categories viewable" ON public.categories FOR SELECT USING (is_active = TRUE OR public.is_admin());
+CREATE POLICY "Public active products viewable" ON public.products FOR SELECT USING (is_active = TRUE OR public.is_admin());
+CREATE POLICY "Public product images viewable" ON public.product_images FOR SELECT USING (TRUE);
+CREATE POLICY "Public product variants viewable" ON public.product_variants FOR SELECT USING (TRUE);
+CREATE POLICY "Public inventory viewable" ON public.inventory FOR SELECT USING (TRUE);
 
--- Public Read Catalog
-CREATE POLICY "Public categories are viewable" ON public.categories FOR SELECT USING (is_active = TRUE OR public.is_admin());
-CREATE POLICY "Active products are viewable" ON public.products FOR SELECT USING (is_active = TRUE OR public.is_admin());
-CREATE POLICY "Product images are viewable" ON public.product_images FOR SELECT USING (TRUE);
-CREATE POLICY "Product variants are viewable" ON public.product_variants FOR SELECT USING (TRUE);
-CREATE POLICY "Inventory is viewable" ON public.inventory FOR SELECT USING (TRUE);
+-- Profiles Isolation: Customers can view and update their own, role escalation blocked by trigger & check
+CREATE POLICY "Profiles viewable by owner or admin" ON public.profiles FOR SELECT USING (auth.uid() = id OR public.is_admin());
+CREATE POLICY "Profiles updatable by owner or admin" ON public.profiles FOR UPDATE USING (auth.uid() = id OR public.is_admin());
 
--- Profile Isolation
-CREATE POLICY "Users view own profile" ON public.profiles FOR SELECT USING (auth.uid() = id OR public.is_admin());
-CREATE POLICY "Users update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+-- Addresses Isolation
+CREATE POLICY "Addresses viewable by owner or admin" ON public.addresses FOR SELECT USING (auth.uid() = user_id OR public.is_admin());
+CREATE POLICY "Addresses insertable by owner" ON public.addresses FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Addresses updatable by owner" ON public.addresses FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Addresses deletable by owner" ON public.addresses FOR DELETE USING (auth.uid() = user_id);
 
--- Address Isolation
-CREATE POLICY "Users view own addresses" ON public.addresses FOR SELECT USING (auth.uid() = user_id OR public.is_admin());
-CREATE POLICY "Users insert own addresses" ON public.addresses FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users update own addresses" ON public.addresses FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users delete own addresses" ON public.addresses FOR DELETE USING (auth.uid() = user_id);
-
--- Cart Isolation
-CREATE POLICY "Users manage own cart" ON public.carts FOR ALL USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Cart items accessible via cart" ON public.cart_items FOR ALL USING (TRUE);
-
--- Wishlist Isolation
-CREATE POLICY "Users manage own wishlist" ON public.wishlists FOR ALL USING (auth.uid() = user_id);
-CREATE POLICY "Wishlist items accessible via wishlist" ON public.wishlist_items FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.wishlists WHERE wishlists.id = wishlist_items.wishlist_id AND wishlists.user_id = auth.uid())
+-- Carts & Cart Items Isolation: Strictly scoped to cart owner
+CREATE POLICY "Carts accessible by owner" ON public.carts FOR ALL USING (
+  (auth.uid() IS NOT NULL AND auth.uid() = user_id) OR
+  (user_id IS NULL AND session_token IS NOT NULL)
 );
 
--- Orders Isolation
-CREATE POLICY "Users view own orders" ON public.orders FOR SELECT USING (auth.uid() = user_id OR public.is_admin());
+CREATE POLICY "Cart items accessible by cart owner" ON public.cart_items FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM public.carts 
+    WHERE carts.id = cart_items.cart_id 
+      AND (
+        (auth.uid() IS NOT NULL AND carts.user_id = auth.uid()) OR
+        (carts.user_id IS NULL AND carts.session_token IS NOT NULL)
+      )
+  )
+);
+
+-- Wishlists & Wishlist Items Isolation
+CREATE POLICY "Wishlists accessible by owner" ON public.wishlists FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Wishlist items accessible by wishlist owner" ON public.wishlist_items FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM public.wishlists 
+    WHERE wishlists.id = wishlist_items.wishlist_id AND wishlists.user_id = auth.uid()
+  )
+);
+
+-- Orders Isolation: Customers view own orders; orders can only be inserted in pending status
+CREATE POLICY "Orders viewable by owner or admin" ON public.orders FOR SELECT USING (auth.uid() = user_id OR public.is_admin());
+CREATE POLICY "Orders insertable by customer" ON public.orders FOR INSERT WITH CHECK (
+  (auth.uid() = user_id OR user_id IS NULL) AND status = 'pending'
+);
 CREATE POLICY "Order items viewable with order" ON public.order_items FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.orders WHERE orders.id = order_items.order_id AND (orders.user_id = auth.uid() OR public.is_admin()))
+  EXISTS (
+    SELECT 1 FROM public.orders 
+    WHERE orders.id = order_items.order_id AND (orders.user_id = auth.uid() OR public.is_admin())
+  )
 );
 
--- Customization Requests
-CREATE POLICY "Users view own customizations" ON public.customization_requests FOR SELECT USING (auth.uid() = user_id OR public.is_admin());
-CREATE POLICY "Anyone can submit customizations" ON public.customization_requests FOR INSERT WITH CHECK (TRUE);
+-- Payments Isolation: Customers can view payment status for their own orders; no direct client mutations
+CREATE POLICY "Payments viewable by order owner or admin" ON public.payments FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM public.orders 
+    WHERE orders.id = payments.order_id AND (orders.user_id = auth.uid() OR public.is_admin())
+  )
+);
 
--- Admin Full Management
+-- Customization Requests: Customers view own; guests can submit with status='submitted'
+CREATE POLICY "Customizations viewable by owner or admin" ON public.customization_requests FOR SELECT USING (
+  auth.uid() = user_id OR public.is_admin()
+);
+CREATE POLICY "Customizations insertable with submitted status" ON public.customization_requests FOR INSERT WITH CHECK (
+  status = 'submitted' AND estimated_quote IS NULL AND admin_notes IS NULL
+);
+
+-- Administrative Full Management on Core Business Entities
 CREATE POLICY "Admin full categories" ON public.categories FOR ALL USING (public.is_admin());
 CREATE POLICY "Admin full products" ON public.products FOR ALL USING (public.is_admin());
+CREATE POLICY "Admin full product images" ON public.product_images FOR ALL USING (public.is_admin());
+CREATE POLICY "Admin full product variants" ON public.product_variants FOR ALL USING (public.is_admin());
+CREATE POLICY "Admin full inventory" ON public.inventory FOR ALL USING (public.is_admin());
 CREATE POLICY "Admin full orders" ON public.orders FOR ALL USING (public.is_admin());
+CREATE POLICY "Admin full order items" ON public.order_items FOR ALL USING (public.is_admin());
 CREATE POLICY "Admin full payments" ON public.payments FOR ALL USING (public.is_admin());
 CREATE POLICY "Admin full customizations" ON public.customization_requests FOR ALL USING (public.is_admin());

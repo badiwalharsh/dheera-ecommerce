@@ -1,11 +1,19 @@
 import { createBrowserClient } from "@supabase/ssr";
+import { getSafeSupabaseCredentials } from "./config";
 
 /**
  * Creates a browser-side Supabase client for Client Components.
+ * Handles missing or placeholder environment variables safely without leaking or failing unpredictably.
  */
 export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-dheera.supabase.co";
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+  const { url, anonKey, isConfigured } = getSafeSupabaseCredentials();
 
-  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+  if (!isConfigured && typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+    // Graceful diagnostic for developers before connecting real Supabase project
+    console.info(
+      "[DHEERA Security] Running with placeholder Supabase credentials. Live queries will remain mocked until .env.local is configured."
+    );
+  }
+
+  return createBrowserClient(url, anonKey);
 }

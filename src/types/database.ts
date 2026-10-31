@@ -231,3 +231,4 @@ export interface CustomizationRequest {
   createdAt: string;
   updatedAt: string;
 }
+

@@ -178,3 +178,4 @@ erDiagram
 
 ### 2.4 Bespoke Atelier
 - **`customization_requests`**: Dedicated workflow for bespoke Indian outfits, measurements, reference imagery, quotes, and artisan consultation tracking.
+

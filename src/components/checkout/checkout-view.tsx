@@ -251,16 +251,16 @@ export function CheckoutView() {
 
           const verifyData = await verifyRes.json();
 
-          if (verifyData.success) {
+          if (verifyData.success && verifyData.accessToken) {
             clearBag();
-            router.push(`/order-confirmation/${orderNumber}`);
+            router.push(`/order-confirmation/${orderNumber}?token=${verifyData.accessToken}`);
           } else {
             setPaymentErrorModal({
               open: true,
               title: "Payment Verification Failed",
               message:
                 verifyData.message ||
-                "We could not cryptographically verify this payment signature. If funds were debited, they will be auto-refunded within 48 hours.",
+                "Cryptographic payment verification failed on our server. If funds were debited, they will be auto-refunded within 48 hours.",
             });
             setIsSubmitting(false);
           }
@@ -269,7 +269,7 @@ export function CheckoutView() {
             open: true,
             title: "Network Verification Interrupted",
             message:
-              "Your payment was received but our verification service timed out. Our concierge team is verifying your order snapshot.",
+              "Your payment was received but our verification service timed out. Please contact concierge support before attempting to pay again.",
           });
           setIsSubmitting(false);
         }
@@ -320,35 +320,33 @@ export function CheckoutView() {
         rzpInstance.open();
       } else {
         // High-Fidelity Test Mode Simulator
-        // Generates cryptographically valid test signature and confirms transaction
-        const simulatedPaymentId = `pay_test_${Math.random().toString(36).substring(2, 10)}`;
+        // Generates server-signed test credentials and routes strictly through /api/checkout/verify-payment
+        await new Promise((r) => setTimeout(r, 1000));
 
-        // Allow 1.2s realistic simulation delay
-        await new Promise((r) => setTimeout(r, 1200));
-
-        // Use test endpoint helper or direct verify signature
-        const testSignatureRes = await fetch("/api/checkout/verify-payment", {
+        const simRes = await fetch("/api/checkout/simulate-test-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            orderId,
             orderNumber,
             razorpayOrderId,
-            razorpayPaymentId: simulatedPaymentId,
-            // Test signature generator fallback
-            razorpaySignature: "simulated_test_signature",
           }),
         });
 
-        const testVerifyData = await testSignatureRes.json();
+        const simData = await simRes.json();
 
-        if (testVerifyData.success || testVerifyData.orderNumber) {
-          clearBag();
-          router.push(`/order-confirmation/${orderNumber}`);
+        if (simData.success && simData.paymentId && simData.signature) {
+          await handlePaymentVerification({
+            razorpay_payment_id: simData.paymentId,
+            razorpay_order_id: razorpayOrderId,
+            razorpay_signature: simData.signature,
+          });
         } else {
-          // If signature verification fails on invalid dummy signature, try with mock endpoint
-          clearBag();
-          router.push(`/order-confirmation/${orderNumber}`);
+          setPaymentErrorModal({
+            open: true,
+            title: "Test Simulation Unavailable",
+            message: "Could not generate verified test credentials for this simulated checkout.",
+          });
+          setIsSubmitting(false);
         }
       }
     } catch (err: any) {
@@ -920,3 +918,4 @@ export function CheckoutView() {
     </div>
   );
 }
+

@@ -374,17 +374,20 @@ async function run() {
     assert.strictEqual(res.body.orderNumber, createdOrderData.orderNumber);
     assert.strictEqual(res.body.status, "confirmed");
     assert.strictEqual(res.body.paymentStatus, "captured");
-    assert.strictEqual(res.body.redirectUrl, `/order-confirmation/${createdOrderData.orderNumber}`);
+    assert.ok(
+      res.body.redirectUrl.startsWith(`/order-confirmation/${createdOrderData.orderNumber}?token=`),
+      "Redirect URL must contain secure access token"
+    );
   });
 
-  // Test 16: Order Confirmation Retrieval API
-  await testAsync("16. API: Retrieves confirmed order snapshot for confirmation view", async () => {
+  // Test 16: Order Confirmation Retrieval API with Access Token
+  await testAsync("16. API: Retrieves confirmed order snapshot with cryptographic access token", async () => {
     assert.ok(createdOrderData, "Precondition: Order must have been created");
 
     const res = await request({
       hostname: "localhost",
       port: 3000,
-      path: `/api/orders/${createdOrderData.orderNumber}`,
+      path: `/api/orders/${createdOrderData.orderNumber}?token=${createdOrderData.accessToken}`,
       method: "GET",
     });
 
@@ -456,3 +459,4 @@ run().catch((err) => {
   console.error("Test execution failed:", err);
   process.exit(1);
 });
+

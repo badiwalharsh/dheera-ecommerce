@@ -123,3 +123,4 @@ ON CONFLICT (code) DO UPDATE SET
   max_discount_amount = EXCLUDED.max_discount_amount,
   is_active = TRUE,
   is_development_fixture = TRUE;
+

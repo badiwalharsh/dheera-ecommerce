@@ -11,10 +11,20 @@ export async function GET(
       return NextResponse.json({ success: false, message: "Order number is required." }, { status: 400 });
     }
 
-    const order = await getOrderForConfirmation(orderNumber);
+    const url = new URL(req.url);
+    const token = url.searchParams.get("token");
 
-    if (!order) {
-      return NextResponse.json({ success: false, message: "Order not found." }, { status: 404 });
+    // Retrieve order with cryptographic token or user session validation
+    const { order, authorized } = await getOrderForConfirmation(orderNumber, token, null);
+
+    if (!authorized || !order) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Access denied. Order details can only be viewed with verified authorization or a valid order token.",
+        },
+        { status: 403 }
+      );
     }
 
     return NextResponse.json({

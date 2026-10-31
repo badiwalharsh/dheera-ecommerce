@@ -15,13 +15,16 @@ import {
   ArrowRight,
   Sparkles,
   Printer,
+  Clock,
+  AlertTriangle,
 } from "lucide-react";
 
 interface OrderConfirmationViewProps {
   orderIdentifier: string;
+  accessToken?: string | null;
 }
 
-export function OrderConfirmationView({ orderIdentifier }: OrderConfirmationViewProps) {
+export function OrderConfirmationView({ orderIdentifier, accessToken }: OrderConfirmationViewProps) {
   const [order, setOrder] = useState<ConfirmedOrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,12 +32,13 @@ export function OrderConfirmationView({ orderIdentifier }: OrderConfirmationView
   useEffect(() => {
     async function fetchOrder() {
       try {
-        const res = await fetch(`/api/orders/${orderIdentifier}`);
+        const tokenQuery = accessToken ? `?token=${encodeURIComponent(accessToken)}` : "";
+        const res = await fetch(`/api/orders/${orderIdentifier}${tokenQuery}`);
         const data = await res.json();
         if (data.success && data.order) {
           setOrder(data.order);
         } else {
-          setError(data.message || "Unable to locate order details.");
+          setError(data.message || "Unable to locate order details or authorization is required.");
         }
       } catch {
         setError("Error fetching order confirmation.");
@@ -43,7 +47,7 @@ export function OrderConfirmationView({ orderIdentifier }: OrderConfirmationView
       }
     }
     fetchOrder();
-  }, [orderIdentifier]);
+  }, [orderIdentifier, accessToken]);
 
   if (loading) {
     return (
@@ -60,14 +64,17 @@ export function OrderConfirmationView({ orderIdentifier }: OrderConfirmationView
     return (
       <div className="py-20 bg-[#FAF9F5] min-h-[60vh] flex items-center">
         <Container size="default">
-          <div className="max-w-md mx-auto text-center space-y-4 p-8 border border-[#E2DFD6] bg-white">
-            <h1 className="font-serif text-2xl text-[#176B45]">Order Not Found</h1>
-            <p className="text-xs text-[#74786F]">
-              {error || "We could not find the specified order. It may still be finalizing."}
+          <div className="max-w-md mx-auto text-center space-y-4 p-8 border border-[#E2DFD6] bg-white shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-red-50 text-red-700 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h1 className="font-serif text-2xl text-[#176B45]">Order Access Restricted</h1>
+            <p className="text-xs text-[#74786F] leading-relaxed">
+              {error || "For customer privacy, order details can only be viewed with the verified access token issued at checkout."}
             </p>
             <Link
               href="/shop"
-              className="inline-block mt-2 px-6 py-2.5 bg-[#176B45] text-white text-xs uppercase tracking-luxury hover:bg-[#315039]"
+              className="inline-block mt-2 px-6 py-2.5 bg-[#176B45] text-white text-xs uppercase tracking-luxury hover:bg-[#315039] font-medium"
             >
               Return to Shop
             </Link>
@@ -77,7 +84,8 @@ export function OrderConfirmationView({ orderIdentifier }: OrderConfirmationView
     );
   }
 
-  const { customerInfo, shippingAddress, items, pricing, payment } = order;
+  const { customerInfo, shippingAddress, items, pricing, payment, status, paymentStatus } = order;
+  const isPaid = status === "confirmed" && paymentStatus === "captured";
 
   return (
     <div className="py-12 md:py-20 bg-[#FAF9F5]">
@@ -85,19 +93,27 @@ export function OrderConfirmationView({ orderIdentifier }: OrderConfirmationView
         <div className="max-w-3xl mx-auto space-y-8">
           {/* Header Banner */}
           <div className="text-center space-y-4 bg-white border border-[#E2DFD6] p-8 sm:p-12 shadow-sm">
-            <div className="w-16 h-16 rounded-full bg-[#176B45]/10 text-[#176B45] flex items-center justify-center mx-auto border border-[#176B45]/20">
-              <CheckCircle2 className="w-8 h-8" />
+            <div
+              className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto border ${
+                isPaid
+                  ? "bg-[#176B45]/10 text-[#176B45] border-[#176B45]/20"
+                  : "bg-amber-50 text-amber-700 border-amber-200"
+              }`}
+            >
+              {isPaid ? <CheckCircle2 className="w-8 h-8" /> : <Clock className="w-8 h-8" />}
             </div>
 
             <div className="space-y-1.5">
               <span className="text-[10px] uppercase tracking-luxury text-[#AA9160] font-semibold block">
-                Order Confirmed
+                {isPaid ? "Order Confirmed & Payment Verified" : "Payment Awaiting Verification"}
               </span>
               <h1 className="text-3xl sm:text-4xl font-serif text-[#176B45]">
-                Thank You, {customerInfo.fullName}
+                {isPaid ? `Thank You, ${customerInfo.fullName}` : `Order #${order.orderNumber} Pending`}
               </h1>
               <p className="text-xs sm:text-sm text-[#74786F] max-w-md mx-auto pt-1 leading-relaxed">
-                Your bespoke order has been registered. Our artisanal team has begun reviewing your ensemble specifications.
+                {isPaid
+                  ? "Your bespoke order has been registered. Our artisanal team has begun reviewing your ensemble specifications."
+                  : "Your payment is currently being verified by the payment gateway. You will receive an email once confirmed."}
               </p>
             </div>
 
@@ -106,8 +122,12 @@ export function OrderConfirmationView({ orderIdentifier }: OrderConfirmationView
               <span className="px-3.5 py-1.5 bg-[#EEEAE0] border border-[#E2DFD6] text-[#252A25] font-mono font-medium">
                 Order #{order.orderNumber}
               </span>
-              <span className="px-3.5 py-1.5 bg-[#176B45] text-[#FAF9F5] uppercase tracking-luxury text-[10px] font-semibold">
-                Payment: {payment.status === "captured" ? "Verified (Captured)" : "Processing"}
+              <span
+                className={`px-3.5 py-1.5 uppercase tracking-luxury text-[10px] font-semibold ${
+                  isPaid ? "bg-[#176B45] text-[#FAF9F5]" : "bg-amber-100 text-amber-800 border border-amber-200"
+                }`}
+              >
+                Payment: {payment.status === "captured" ? "Verified (Captured)" : "Pending Verification"}
               </span>
             </div>
 

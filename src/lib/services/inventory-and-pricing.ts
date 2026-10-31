@@ -26,6 +26,88 @@ export interface ValidationSummary {
   errors: string[];
 }
 
+// In-memory stock repository for test & development concurrency integrity
+const FIXTURE_INVENTORY = new Map<string, number>();
+
+// Initialize stock from constants
+SAMPLE_PRODUCTS.forEach((p) => {
+  p.variants.forEach((v) => {
+    const key = `${p.id}_${v.size}_${v.colour}`;
+    FIXTURE_INVENTORY.set(key, v.quantityAvailable);
+  });
+});
+
+/**
+ * Returns current real-time stock for a variant
+ */
+export function getAvailableStock(productId: string, size: string, colour?: string): number {
+  const key = `${productId}_${size}_${colour || "Standard"}`;
+  if (FIXTURE_INVENTORY.has(key)) {
+    return FIXTURE_INVENTORY.get(key)!;
+  }
+  // Check without colour
+  const fallbackKey = `${productId}_${size}_Standard`;
+  if (FIXTURE_INVENTORY.has(fallbackKey)) {
+    return FIXTURE_INVENTORY.get(fallbackKey)!;
+  }
+  return 5;
+}
+
+/**
+ * Atomically deducts inventory to prevent overselling and concurrency race conditions
+ */
+export async function deductInventoryAtomic(
+  items: Array<{ productId: string; size: string; colour: string; quantity: number }>
+): Promise<{ success: boolean; error?: string }> {
+  // 1. Supabase Atomic DB procedure if configured
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClientServer();
+      const payload = items.map((i) => ({
+        variant_id: i.productId,
+        quantity: i.quantity,
+      }));
+      const { data, error } = await supabase.rpc("deduct_inventory_atomic", { p_items: payload });
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: !!data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  }
+
+  // 2. Atomic In-Memory Check & Deduct with Rollback Guard
+  // Phase A: Pre-check all items
+  for (const item of items) {
+    const key = `${item.productId}_${item.size}_${item.colour}`;
+    const current = FIXTURE_INVENTORY.get(key) ?? 5;
+    if (current < item.quantity) {
+      return {
+        success: false,
+        error: `Insufficient stock for ${item.productId} (${item.size}). Requested: ${item.quantity}, Available: ${current}`,
+      };
+    }
+  }
+
+  // Phase B: Atomic deduction
+  for (const item of items) {
+    const key = `${item.productId}_${item.size}_${item.colour}`;
+    const current = FIXTURE_INVENTORY.get(key) ?? 5;
+    FIXTURE_INVENTORY.set(key, current - item.quantity);
+  }
+
+  return { success: true };
+}
+
+/**
+ * Resets or sets mock stock for a variant (used by tests)
+ */
+export function setMockStock(productId: string, size: string, colour: string, stock: number) {
+  const key = `${productId}_${size}_${colour}`;
+  FIXTURE_INVENTORY.set(key, stock);
+}
+
 /**
  * Server-authoritative validation of untrusted client cart items.
  * Fetches actual product prices, verifies variant validity, and enforces stock limits.
@@ -127,11 +209,20 @@ export async function validateCartServer(rawItems: CartItem[]): Promise<Validati
       (v) => v.size === clientItem.size && (!clientItem.colour || v.colour === clientItem.colour)
     );
 
-    const stock = matchedVariant?.quantityAvailable ?? (fixtureProduct.inStock ? 5 : 0);
+    const realTimeStock = getAvailableStock(
+      fixtureProduct.id,
+      clientItem.size || "Standard",
+      clientItem.colour || "Standard"
+    );
+
     const authoritativePrice = fixtureProduct.price; // Strict server-side price
 
-    if (stock <= 0) {
+    if (realTimeStock <= 0) {
       errors.push(`"${fixtureProduct.name}" in size ${clientItem.size} is currently out of stock.`);
+    } else if (sanitizedQty > realTimeStock) {
+      errors.push(
+        `Only ${realTimeStock} unit(s) of "${fixtureProduct.name}" (${clientItem.size}) are currently available.`
+      );
     }
 
     const itemTotal = authoritativePrice * sanitizedQty;
@@ -149,8 +240,8 @@ export async function validateCartServer(rawItems: CartItem[]): Promise<Validati
       quantity: sanitizedQty,
       unitPrice: authoritativePrice,
       totalPrice: itemTotal,
-      inStock: stock > 0,
-      maxAvailable: stock,
+      inStock: realTimeStock > 0,
+      maxAvailable: realTimeStock,
     });
   }
 

@@ -86,6 +86,7 @@ export interface CreateOrderPayload {
 export interface RazorpayOrderResponse {
   orderId: string; // Internal DHEERA order UUID
   orderNumber: string; // Human-friendly order identifier (e.g. DHR-20261031-1001)
+  accessToken: string; // Cryptographic unguessable access token for guest order retrieval
   razorpayOrderId: string;
   amount: number; // in paise (e.g. ₹2999 -> 299900)
   currency: string;
@@ -130,6 +131,7 @@ export type PaymentStatus =
 export interface ConfirmedOrderDetails {
   id: string;
   orderNumber: string;
+  accessToken: string;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   createdAt: string;

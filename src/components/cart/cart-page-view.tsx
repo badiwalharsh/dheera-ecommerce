@@ -474,3 +474,4 @@ export function CartPageView() {
     </div>
   );
 }
+

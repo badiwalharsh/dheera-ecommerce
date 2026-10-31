@@ -5,13 +5,31 @@ import { calculateShipping, validateIndianPincode } from "@/lib/services/shippin
 import { validateCoupon } from "@/lib/services/coupons";
 import { RazorpayService } from "@/lib/services/razorpay";
 import { generateOrderNumber, savePendingOrder } from "@/lib/services/orders";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 
 export async function POST(req: Request) {
   try {
+    // 1. Rate Limiting Check (Max 15 order creation requests per minute per IP)
+    const rateLimit = checkRateLimit(req, "create-order", 15, 60000);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Too many checkout requests. Please wait a moment before trying again.",
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil(rateLimit.resetMs / 1000)),
+          },
+        }
+      );
+    }
+
     const payload: CreateOrderPayload = await req.json();
     const { items, customerInfo, shippingAddress, couponCode } = payload;
 
-    // 1. Validate Customer Info
+    // 2. Validate Customer Info
     if (!customerInfo?.fullName?.trim() || !customerInfo?.email?.trim() || !customerInfo?.phone?.trim()) {
       return NextResponse.json(
         { success: false, message: "Please provide complete contact information (Full name, email, and phone)." },
@@ -36,7 +54,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Validate Shipping Address
+    // 3. Validate Shipping Address
     if (
       !shippingAddress?.houseNumber?.trim() ||
       !shippingAddress?.street?.trim() ||
@@ -58,7 +76,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Server-side Authoritative Cart Validation
+    // 4. Server-side Authoritative Cart Validation
     const cartValidation = await validateCartServer(items);
     if (!cartValidation.isValid || cartValidation.items.length === 0) {
       return NextResponse.json(
@@ -73,7 +91,7 @@ export async function POST(req: Request) {
 
     const verifiedSubtotal = cartValidation.subtotal;
 
-    // 4. Validate Coupon on verified subtotal
+    // 5. Validate Coupon on verified subtotal
     let discountAmount = 0;
     let appliedCouponInfo: OrderPricingSummary["appliedCoupon"] = undefined;
 
@@ -92,7 +110,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // 5. Calculate Shipping on verified subtotal after discount
+    // 6. Calculate Shipping on verified subtotal after discount
     const shippingRes = calculateShipping(verifiedSubtotal, shippingAddress.pincode, shippingAddress.country);
     if (!shippingRes.isServiceable) {
       return NextResponse.json(
@@ -114,10 +132,10 @@ export async function POST(req: Request) {
       appliedCoupon: appliedCouponInfo,
     };
 
-    // 6. Generate Order Number
+    // 7. Generate Order Number
     const orderNumber = generateOrderNumber();
 
-    // 7. Create Razorpay Order in paise
+    // 8. Create Razorpay Order in paise
     const amountInPaise = Math.round(finalAmount * 100);
     const rzpOrder = await RazorpayService.createOrder({
       amount: amountInPaise,
@@ -130,7 +148,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // 8. Persist Pending Order in Database
+    // 9. Persist Pending Order in Database
     const savedOrder = await savePendingOrder({
       orderNumber,
       payload,
@@ -143,6 +161,7 @@ export async function POST(req: Request) {
       success: true,
       orderId: savedOrder.id,
       orderNumber: savedOrder.orderNumber,
+      accessToken: savedOrder.accessToken,
       razorpayOrderId: rzpOrder.id,
       amount: amountInPaise,
       currency: "INR",
@@ -156,7 +175,8 @@ export async function POST(req: Request) {
       isSimulatedTest: rzpOrder.isSimulated,
     });
   } catch (err: any) {
-    console.error("Order creation error:", err);
+    // Sanitized error logging (no sensitive secrets or PII)
+    console.error("Order creation processing error:", err.message);
     return NextResponse.json(
       { success: false, message: "An unexpected error occurred while preparing your order. Please try again." },
       { status: 500 }

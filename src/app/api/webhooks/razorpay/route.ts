@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { RazorpayService } from "@/lib/services/razorpay";
-import { confirmOrderPayment } from "@/lib/services/orders";
-
-// Idempotency cache for processed webhook event IDs
-const PROCESSED_WEBHOOK_EVENTS = new Set<string>();
+import { confirmOrderPayment, recordWebhookEvent } from "@/lib/services/orders";
 
 export async function POST(req: Request) {
   try {
@@ -17,10 +14,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1. Verify Webhook Signature
+    // 1. Verify Webhook Signature using timing-safe comparison
     const isValid = RazorpayService.verifyWebhookSignature(rawBody, signature);
     if (!isValid) {
-      console.warn("Unauthorized webhook attempt rejected: Invalid HMAC signature");
       return NextResponse.json(
         { success: false, message: "Invalid webhook signature." },
         { status: 401 }
@@ -30,20 +26,18 @@ export async function POST(req: Request) {
     const event = JSON.parse(rawBody);
     const eventId = event.event_id || `${event.event}_${event.payload?.payment?.entity?.id || ""}`;
 
-    // 2. Idempotency Check
-    if (eventId && PROCESSED_WEBHOOK_EVENTS.has(eventId)) {
-      return NextResponse.json({ success: true, message: "Event already processed." });
-    }
-
+    // 2. Database-Enforced Webhook Idempotency Check
     if (eventId) {
-      PROCESSED_WEBHOOK_EVENTS.add(eventId);
+      const { alreadyProcessed } = await recordWebhookEvent(eventId, event.event, event);
+      if (alreadyProcessed) {
+        return NextResponse.json({ success: true, message: "Event already processed (Idempotent)." });
+      }
     }
 
     // 3. Handle Events
     switch (event.event) {
       case "payment.captured": {
         const paymentEntity = event.payload?.payment?.entity;
-        const orderId = paymentEntity?.order_id;
         const paymentId = paymentEntity?.id;
         const orderNumber = paymentEntity?.notes?.orderNumber;
 
@@ -66,8 +60,7 @@ export async function POST(req: Request) {
       }
 
       case "payment.failed": {
-        const paymentEntity = event.payload?.payment?.entity;
-        console.warn(`Payment failed event received for order ${paymentEntity?.order_id}: ${paymentEntity?.error_description}`);
+        // Log event type only without sensitive card details
         break;
       }
 
@@ -78,9 +71,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, received: true });
   } catch (err: any) {
-    console.error("Webhook processing error:", err);
+    console.error("Webhook processing error:", err.message);
     return NextResponse.json(
-      { success: false, message: "Webhook execution error.", error: err.message },
+      { success: false, message: "Webhook execution error." },
       { status: 500 }
     );
   }

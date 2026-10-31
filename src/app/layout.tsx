@@ -4,6 +4,7 @@ import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { ShopProvider } from "@/context/shop-context";
+import { AuthProvider } from "@/context/auth-context";
 import { SearchModal } from "@/components/navigation/search-modal";
 import { QuickViewModal } from "@/components/products/quick-view-modal";
 import { CartDrawer } from "@/components/cart/cart-drawer";
@@ -55,13 +56,15 @@ export default function RootLayout({
     <html lang="en" className={`${serifFont.variable} ${sansFont.variable}`}>
       <body className="min-h-screen flex flex-col bg-[#EEEAE0] text-[#252A25] selection:bg-[#AA9160] selection:text-white">
         <ShopProvider>
-          <AnnouncementBar />
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <SearchModal />
-          <QuickViewModal />
-          <CartDrawer />
+          <AuthProvider>
+            <AnnouncementBar />
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <SearchModal />
+            <QuickViewModal />
+            <CartDrawer />
+          </AuthProvider>
         </ShopProvider>
       </body>
     </html>

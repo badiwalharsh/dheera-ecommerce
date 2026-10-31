@@ -19,6 +19,8 @@ export function formatCurrencyINR(amount: number): string {
   }).format(amount);
 }
 
+export const formatCurrency = formatCurrencyINR;
+
 /**
  * Generates an order or request reference ID.
  */

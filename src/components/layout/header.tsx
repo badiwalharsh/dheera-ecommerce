@@ -7,11 +7,13 @@ import { DesktopNav } from "@/components/navigation/desktop-nav";
 import { MobileNav } from "@/components/navigation/mobile-nav";
 import { Container } from "@/components/ui/container";
 import { useShop } from "@/context/shop-context";
+import { useAuth } from "@/context/auth-context";
 import { Search, ShoppingBag, Heart, User, Menu, X } from "lucide-react";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { wishlistCount, cartCount, setSearchOpen, openBag } = useShop();
+  const { user, isAuthenticated } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 bg-[#FAF9F5]/95 backdrop-blur-md border-b border-[#E2DFD6] transition-all">
@@ -53,16 +55,22 @@ export function Header() {
 
             {/* Account Link */}
             <Link
-              href="/account"
-              className="p-1.5 sm:p-2 text-[#176B45] hover:text-[#AA9160] transition-colors hidden sm:inline-flex"
-              aria-label="Account"
+              href={isAuthenticated ? "/account" : "/account/login"}
+              className="p-1.5 sm:p-2 text-[#176B45] hover:text-[#AA9160] transition-colors hidden sm:inline-flex items-center gap-1.5"
+              aria-label={isAuthenticated ? "Patron Account" : "Sign In"}
+              title={isAuthenticated ? `Namaste, ${user?.fullName}` : "Sign In"}
             >
               <User className="w-4 h-4 sm:w-5 sm:h-5" />
+              {isAuthenticated && user && (
+                <span className="text-[11px] font-serif font-medium hidden md:inline text-[#176B45]">
+                  {user.fullName.split(" ")[0]}
+                </span>
+              )}
             </Link>
 
             {/* Wishlist Link with Count Badge */}
             <Link
-              href="/account"
+              href="/account/wishlist"
               className="p-1.5 sm:p-2 text-[#176B45] hover:text-[#AA9160] transition-colors relative"
               aria-label="Wishlist"
             >

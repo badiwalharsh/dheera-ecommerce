@@ -1,23 +1,20 @@
-import React from "react";
-import { Container } from "@/components/ui/container";
+import { Metadata } from "next";
+import { AccountLayout } from "@/components/account/account-layout";
+import { DashboardOverview } from "@/components/account/dashboard-overview";
+
+export const metadata: Metadata = {
+  title: "Patron Dashboard — DHEERA",
+  description: "View and manage your DHEERA account, orders, saved addresses, and wishlist.",
+};
 
 export default function AccountPage() {
   return (
-    <div className="py-20">
-      <Container size="default">
-        <div className="text-center max-w-xl mx-auto space-y-3">
-          <span className="text-[10px] uppercase tracking-luxury text-dheera-dark-green font-medium">
-            Customer Portal
-          </span>
-          <h1 className="text-4xl font-serif text-dheera-forest-green">
-            Your Profile & Orders
-          </h1>
-          <p className="text-sm text-dheera-secondary-text">
-            Customer authentication, address book, and order history to be implemented in Phase 6.
-          </p>
-        </div>
-      </Container>
-    </div>
+    <AccountLayout
+      title="Patron Overview"
+      subtitle="Welcome to your personal atelier dashboard."
+      breadcrumb="Dashboard"
+    >
+      <DashboardOverview />
+    </AccountLayout>
   );
 }
-

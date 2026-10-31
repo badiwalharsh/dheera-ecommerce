@@ -81,6 +81,7 @@ export interface CreateOrderPayload {
   shippingAddress: ShippingAddress;
   couponCode?: string;
   notes?: string;
+  userId?: string;
 }
 
 export interface RazorpayOrderResponse {
@@ -132,6 +133,7 @@ export interface ConfirmedOrderDetails {
   id: string;
   orderNumber: string;
   accessToken: string;
+  userId?: string;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   createdAt: string;

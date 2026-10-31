@@ -84,7 +84,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
           </Link>
 
           <Link
-            href="/account"
+            href="/account/wishlist"
             onClick={onClose}
             className="p-3 bg-[#EEEAE0]/70 border border-[#E2DFD6] flex flex-col items-center gap-1 text-[10px] uppercase tracking-luxury text-[#252A25] relative"
           >

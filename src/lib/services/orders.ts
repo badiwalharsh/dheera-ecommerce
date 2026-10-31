@@ -45,6 +45,7 @@ export async function savePendingOrder(params: SavePendingOrderParams): Promise<
     id: orderId,
     orderNumber,
     accessToken,
+    userId: payload.userId,
     status: "pending_payment",
     paymentStatus: "created",
     createdAt: nowIso,
@@ -82,6 +83,7 @@ export async function savePendingOrder(params: SavePendingOrderParams): Promise<
       id: orderId,
       order_number: orderNumber,
       access_token: accessToken,
+      user_id: payload.userId || null,
       email: payload.customerInfo.email,
       phone: payload.customerInfo.phone,
       shipping_address_snapshot: payload.shippingAddress,
@@ -162,6 +164,7 @@ export async function getInternalOrder(orderIdentifier: string): Promise<Confirm
           id: dbOrder.id,
           orderNumber: dbOrder.order_number,
           accessToken: dbOrder.access_token || "",
+          userId: dbOrder.user_id || undefined,
           status: dbOrder.status as OrderStatus,
           paymentStatus: (primaryPayment?.status as PaymentStatus) || "created",
           createdAt: dbOrder.created_at,
@@ -347,7 +350,7 @@ export async function getOrderForConfirmation(
 
   // AUTHORIZATION CHECK (IDOR Protection)
   // 1. Authenticated customer ownership
-  if (userId && (order as any).user_id && (order as any).user_id === userId) {
+  if (userId && (order.userId === userId || (order as any).user_id === userId)) {
     return { order, authorized: true };
   }
 
@@ -358,4 +361,147 @@ export async function getOrderForConfirmation(
 
   // Unauthorized access attempt
   return { order: null, authorized: false };
+}
+
+/**
+ * Retrieves all orders belonging to a customer
+ */
+export async function getCustomerOrders(
+  userId: string,
+  email?: string
+): Promise<ConfirmedOrderDetails[]> {
+  const results: ConfirmedOrderDetails[] = [];
+  const seenIds = new Set<string>();
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClientServer();
+      const { data: dbOrders, error } = await supabase
+        .from("orders")
+        .select(`
+          id, order_number, access_token, user_id, status, subtotal, discount_amount, shipping_fee, tax_amount, total_amount,
+          shipping_address_snapshot, email, phone, created_at, tracking_number,
+          order_items ( id, product_id, product_name, sku, size_label, colour_label, quantity, unit_price, total_price ),
+          payments ( gateway_order_id, gateway_payment_id, status, currency )
+        `)
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (!error && Array.isArray(dbOrders)) {
+        for (const dbOrder of dbOrders) {
+          const primaryPayment = dbOrder.payments?.[0];
+          const record: ConfirmedOrderDetails = {
+            id: dbOrder.id,
+            orderNumber: dbOrder.order_number,
+            accessToken: dbOrder.access_token || "",
+            userId: dbOrder.user_id,
+            status: dbOrder.status as OrderStatus,
+            paymentStatus: (primaryPayment?.status as PaymentStatus) || "created",
+            createdAt: dbOrder.created_at,
+            customerInfo: {
+              fullName: dbOrder.shipping_address_snapshot?.fullName || "Valued Patron",
+              email: dbOrder.email,
+              phone: dbOrder.phone,
+            },
+            shippingAddress: dbOrder.shipping_address_snapshot,
+            items: (dbOrder.order_items || []).map((item: any) => ({
+              id: item.id,
+              productId: item.product_id,
+              name: item.product_name,
+              sku: item.sku,
+              size: item.size_label,
+              colour: item.colour_label || "Standard",
+              quantity: item.quantity,
+              unitPrice: Number(item.unit_price),
+              totalPrice: Number(item.total_price),
+              image: "/images/products/product-1.jpg",
+            })),
+            pricing: {
+              subtotal: Number(dbOrder.subtotal),
+              discountAmount: Number(dbOrder.discount_amount),
+              shippingFee: Number(dbOrder.shipping_fee),
+              taxAmount: Number(dbOrder.tax_amount),
+              totalAmount: Number(dbOrder.total_amount),
+            },
+            payment: {
+              gateway: "razorpay",
+              gatewayOrderId: primaryPayment?.gateway_order_id || "",
+              gatewayPaymentId: primaryPayment?.gateway_payment_id || undefined,
+              status: (primaryPayment?.status as PaymentStatus) || "created",
+              currency: primaryPayment?.currency || "INR",
+              isTestMode: true,
+            },
+          };
+          seenIds.add(record.id);
+          results.push(record);
+        }
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
+  // Also include in-memory orders belonging to this user or email
+  MEMORY_ORDERS.forEach((ord) => {
+    if (!seenIds.has(ord.id)) {
+      const matchesUser = ord.userId === userId;
+      const matchesEmail = email && ord.customerInfo.email.toLowerCase() === email.toLowerCase();
+      if (matchesUser || (matchesEmail && !ord.userId)) {
+        seenIds.add(ord.id);
+        results.push(ord);
+      }
+    }
+  });
+
+  return results.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+}
+
+/**
+ * Associates past guest orders with customer's authenticated user_id
+ */
+export async function associateGuestOrdersForUser(
+  userId: string,
+  email: string
+): Promise<number> {
+  let count = 0;
+  const cleanEmail = email.trim().toLowerCase();
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClientServer();
+      const { data, error } = await supabase.rpc("associate_guest_orders", {
+        p_user_id: userId,
+        p_email: cleanEmail,
+      });
+
+      if (!error && typeof data === "number") {
+        count = data;
+      } else {
+        // Direct update fallback if RPC not installed
+        const { error: updErr, count: updCount } = await supabase
+          .from("orders")
+          .update({ user_id: userId, updated_at: new Date().toISOString() })
+          .ilike("email", cleanEmail)
+          .is("user_id", null);
+
+        if (!updErr && typeof updCount === "number") {
+          count = updCount;
+        }
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
+  // Update in-memory orders
+  MEMORY_ORDERS.forEach((ord) => {
+    if (ord.customerInfo.email.toLowerCase() === cleanEmail && !ord.userId) {
+      ord.userId = userId;
+      count++;
+    }
+  });
+
+  return count;
 }

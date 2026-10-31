@@ -20,16 +20,25 @@ import {
   Smartphone,
   RefreshCw,
   Sparkles,
+  MapPin,
+  Check,
 } from "lucide-react";
 import { validateIndianPincode, calculateShipping } from "@/lib/services/shipping";
 import { CustomerInfo, ShippingAddress, Coupon } from "@/types/cart";
+import { useAuth } from "@/context/auth-context";
+import { CustomerAddress } from "@/types/account";
 
 export function CheckoutView() {
   const router = useRouter();
   const { cart, cartSubtotal, cartCount, clearBag } = useShop();
+  const { user } = useAuth();
 
   // Distraction-free mobile summary toggle
   const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false);
+
+  // Saved Patron Addresses
+  const [savedAddresses, setSavedAddresses] = useState<CustomerAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
   // Form State: Section A (Contact)
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -83,6 +92,51 @@ export function CheckoutView() {
       document.body.appendChild(script);
     }
   }, []);
+
+  // Pre-fill user information and fetch saved addresses when patron is authenticated
+  useEffect(() => {
+    if (!user) return;
+
+    setCustomerInfo((prev) => ({
+      fullName: prev.fullName || user.fullName || "",
+      email: prev.email || user.email || "",
+      phone: prev.phone || user.phone || "",
+    }));
+
+    async function loadSavedAddresses() {
+      try {
+        const res = await fetch(`/api/account/addresses?userId=${user?.id}`);
+        if (res.ok) {
+          const addrs: CustomerAddress[] = await res.json();
+          setSavedAddresses(addrs);
+          const defaultAddr = addrs.find((a) => a.isDefault) || addrs[0];
+          if (defaultAddr) {
+            applySavedAddress(defaultAddr);
+          }
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    loadSavedAddresses();
+  }, [user]);
+
+  const applySavedAddress = (addr: CustomerAddress) => {
+    setSelectedAddressId(addr.id);
+    setShippingAddress({
+      fullName: addr.recipientName,
+      phone: addr.phone,
+      pincode: addr.postalCode,
+      houseNumber: addr.addressLine1,
+      street: addr.addressLine2 || addr.addressLine1,
+      landmark: addr.landmark || "",
+      city: addr.city,
+      state: addr.state,
+      country: addr.country || "India",
+      saveAddress: false,
+    });
+  };
 
   // Shipping calculation
   const shippingCalculation = calculateShipping(
@@ -219,6 +273,7 @@ export function CheckoutView() {
             phone: shippingAddress.phone || customerInfo.phone,
           },
           couponCode: appliedCoupon?.code,
+          userId: user?.id,
         }),
       });
 
@@ -498,7 +553,18 @@ export function CheckoutView() {
                     </span>
                     <span>Contact Information</span>
                   </h2>
-                  <span className="text-[11px] text-[#74786F] tracking-wide">For Dispatch & Tracking</span>
+                  {!user ? (
+                    <Link
+                      href="/account/login?redirect=/checkout"
+                      className="text-[11px] text-[#176B45] hover:text-[#AA9160] underline tracking-wide"
+                    >
+                      Sign In for Express Checkout
+                    </Link>
+                  ) : (
+                    <span className="text-[11px] text-[#176B45] font-semibold tracking-wide">
+                      Signed in as {user.fullName.split(" ")[0]}
+                    </span>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
@@ -574,6 +640,50 @@ export function CheckoutView() {
                   </h2>
                   <span className="text-[11px] text-[#74786F] tracking-wide">Pan-India Delivery</span>
                 </div>
+
+                {/* Saved Patron Addresses Selector */}
+                {savedAddresses.length > 0 && (
+                  <div className="pb-3 border-b border-[#E2DFD6] space-y-2">
+                    <span className="text-[10px] uppercase tracking-luxury text-[#176B45] font-semibold block">
+                      Saved Patron Addresses
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {savedAddresses.map((addr) => {
+                        const isSelected = selectedAddressId === addr.id;
+                        return (
+                          <button
+                            key={addr.id}
+                            type="button"
+                            onClick={() => applySavedAddress(addr)}
+                            className={`p-3 text-left border rounded-sm transition-all flex items-start justify-between gap-2 ${
+                              isSelected
+                                ? "border-[#176B45] bg-[#176B45]/5 ring-1 ring-[#176B45]"
+                                : "border-[#E2DFD6] bg-[#FAF9F5] hover:border-[#176B45]/50"
+                            }`}
+                          >
+                            <div className="text-xs space-y-0.5">
+                              <div className="flex items-center gap-1.5 font-medium text-[#252A25]">
+                                <span>{addr.recipientName}</span>
+                                <span className="text-[9px] uppercase px-1 py-0.2 bg-[#176B45]/10 text-[#176B45] rounded">
+                                  {addr.addressType}
+                                </span>
+                              </div>
+                              <p className="text-[#555E55] text-[11px] line-clamp-1">{addr.addressLine1}</p>
+                              <p className="text-[#74786F] text-[10px]">
+                                {addr.city}, {addr.state} – {addr.postalCode}
+                              </p>
+                            </div>
+                            {isSelected && (
+                              <span className="w-4 h-4 rounded-full bg-[#176B45] text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <Check className="w-2.5 h-2.5 stroke-[3]" />
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                   <div>

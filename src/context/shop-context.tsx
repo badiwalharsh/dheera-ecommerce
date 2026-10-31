@@ -2,14 +2,34 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { SampleProduct } from "@/constants";
+import { CatalogProduct } from "@/types/ecommerce";
+
+export type ShopProductItem =
+  | SampleProduct
+  | CatalogProduct
+  | {
+      id: string;
+      slug?: string;
+      name: string;
+      price: number;
+      originalPrice?: number;
+      image: string;
+      category?: string;
+      tag?: string;
+      description?: string;
+      sizes?: readonly string[] | string[];
+      colors?: readonly string[] | string[];
+      fabric?: string;
+      care?: string;
+    };
 
 interface ShopContextType {
   wishlist: string[];
   wishlistCount: number;
   isInWishlist: (productId: string) => boolean;
-  toggleWishlist: (product: SampleProduct) => void;
+  toggleWishlist: (product: ShopProductItem) => void;
   cartCount: number;
-  addToBag: (product: SampleProduct, size?: string) => void;
+  addToBag: (product: ShopProductItem, size?: string) => void;
   searchOpen: boolean;
   setSearchOpen: (open: boolean) => void;
   quickViewProduct: SampleProduct | null;
@@ -52,7 +72,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
 
   const isInWishlist = (productId: string) => wishlist.includes(productId);
 
-  const toggleWishlist = (product: SampleProduct) => {
+  const toggleWishlist = (product: ShopProductItem) => {
     setWishlist((prev) => {
       let updated: string[];
       if (prev.includes(product.id)) {
@@ -71,7 +91,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const addToBag = (product: SampleProduct, size?: string) => {
+  const addToBag = (product: ShopProductItem, size?: string) => {
     setCartCount((prev) => {
       const updated = prev + 1;
       try {

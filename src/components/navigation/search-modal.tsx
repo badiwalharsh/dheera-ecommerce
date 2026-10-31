@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useShop } from "@/context/shop-context";
 import { SAMPLE_PRODUCTS, CATEGORIES } from "@/constants";
 import { formatCurrencyINR } from "@/lib/utils";
-import { Search, X, ArrowRight } from "lucide-react";
+import { Search, X, ArrowRight, Sparkles } from "lucide-react";
 
 export function SearchModal() {
   const { searchOpen, setSearchOpen } = useShop();
@@ -34,13 +34,19 @@ export function SearchModal() {
 
   if (!searchOpen) return null;
 
-  const filteredProducts = query.trim()
-    ? SAMPLE_PRODUCTS.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query.toLowerCase()) ||
-          p.category.toLowerCase().includes(query.toLowerCase()) ||
-          p.description.toLowerCase().includes(query.toLowerCase())
-      )
+  const normalizedQuery = query.toLowerCase().trim();
+
+  // Multi-attribute search across name, category, colour, fabric, description, details
+  const filteredProducts = normalizedQuery
+    ? SAMPLE_PRODUCTS.filter((p) => {
+        const inName = p.name.toLowerCase().includes(normalizedQuery);
+        const inCategory = p.category.toLowerCase().includes(normalizedQuery);
+        const inDesc = p.description.toLowerCase().includes(normalizedQuery);
+        const inFabric = p.fabric.toLowerCase().includes(normalizedQuery);
+        const inColors = p.colors.some((c) => c.toLowerCase().includes(normalizedQuery));
+        const inDetails = p.details ? p.details.some((d) => d.toLowerCase().includes(normalizedQuery)) : false;
+        return inName || inCategory || inDesc || inFabric || inColors || inDetails;
+      })
     : [];
 
   return (
@@ -58,7 +64,7 @@ export function SearchModal() {
         {/* Search Header */}
         <div className="mb-6">
           <span className="text-[10px] uppercase tracking-luxury text-[#AA9160] font-medium block mb-2">
-            Explore Handcrafted Edits
+            Explore Handcrafted Edits & Silhouettes
           </span>
           <div className="relative border-b-2 border-[#176B45] pb-2 flex items-center">
             <Search className="w-5 h-5 text-[#176B45] mr-3 flex-shrink-0" />
@@ -67,7 +73,7 @@ export function SearchModal() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by attire, weave, or colour (e.g. Chanderi, Kurta, Emerald)..."
+              placeholder="Search by attire, weave, fabric or colour (e.g. Chanderi, Rani Pink, Kurta, Silk)..."
               className="w-full bg-transparent text-lg sm:text-xl font-serif text-[#252A25] placeholder:text-[#74786F]/50 focus:outline-none"
             />
           </div>
@@ -76,11 +82,12 @@ export function SearchModal() {
         {/* Suggested Queries */}
         {!query.trim() && (
           <div className="space-y-4">
-            <div className="text-[11px] uppercase tracking-luxury text-[#74786F]">
-              Suggested Searches
+            <div className="text-[11px] uppercase tracking-luxury text-[#74786F] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#AA9160]" />
+              <span>Suggested Searches</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {["Kurta Sets", "Chanderi Saree", "Emerald Anarkali", "Bespoke Suits", "Mulmul", "Festive"].map(
+              {["Kurta Sets", "Chanderi Saree", "Emerald Anarkali", "Mulmul Cotton", "Rani Pink", "Made to Order", "Bespoke"].map(
                 (term) => (
                   <button
                     key={term}
@@ -116,53 +123,71 @@ export function SearchModal() {
         {/* Search Results */}
         {query.trim() && (
           <div className="mt-4 max-h-[60vh] overflow-y-auto space-y-4 pr-1">
-            <div className="text-xs uppercase tracking-luxury text-[#74786F] pb-2 border-b border-[#E2DFD6]">
-              {filteredProducts.length} {filteredProducts.length === 1 ? "Result" : "Results"} for &ldquo;{query}&rdquo;
+            <div className="text-xs uppercase tracking-luxury text-[#74786F] pb-2 border-b border-[#E2DFD6] flex justify-between items-center">
+              <span>
+                {filteredProducts.length} {filteredProducts.length === 1 ? "Result" : "Results"} for &ldquo;{query}&rdquo;
+              </span>
+              <button
+                onClick={() => setQuery("")}
+                className="text-[10px] uppercase tracking-luxury text-[#AA9160] hover:text-[#176B45]"
+              >
+                Clear
+              </button>
             </div>
 
             {filteredProducts.length === 0 ? (
-              <div className="text-center py-12">
+              <div className="text-center py-12 px-4 bg-[#EEEAE0]/40 border border-[#E2DFD6]">
                 <p className="font-serif text-lg text-[#252A25] mb-2">No matching pieces found</p>
-                <p className="text-xs text-[#74786F]">
-                  Try searching for &ldquo;Kurta&rdquo;, &ldquo;Saree&rdquo;, or explore our custom atelier.
+                <p className="text-xs text-[#74786F] max-w-sm mx-auto mb-4">
+                  We couldn&apos;t find any designs matching &ldquo;{query}&rdquo;. Try searching for &ldquo;Kurta&rdquo;, &ldquo;Saree&rdquo;, or contact our custom atelier.
                 </p>
+                <Link
+                  href="/product/custom"
+                  onClick={() => setSearchOpen(false)}
+                  className="inline-block text-xs uppercase tracking-luxury bg-[#176B45] text-white px-5 py-2.5 hover:bg-[#315039] transition-colors"
+                >
+                  Explore Bespoke Customisation
+                </Link>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {filteredProducts.map((product) => (
-                  <Link
-                    key={product.id}
-                    href={`/product?id=${product.id}`}
-                    onClick={() => setSearchOpen(false)}
-                    className="group flex gap-4 p-3 bg-[#EEEAE0]/40 border border-[#E2DFD6] hover:border-[#176B45] transition-colors"
-                  >
-                    <div className="relative w-20 h-24 flex-shrink-0 bg-[#FAF9F5] overflow-hidden">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform"
-                        sizes="80px"
-                      />
-                    </div>
-                    <div className="flex flex-col justify-between py-1">
-                      <div>
-                        <span className="text-[9px] uppercase tracking-luxury text-[#AA9160] block">
-                          {product.category}
-                        </span>
-                        <h4 className="font-serif text-sm text-[#252A25] group-hover:text-[#176B45] line-clamp-1">
-                          {product.name}
-                        </h4>
-                        <span className="text-xs font-medium text-[#176B45]">
-                          {formatCurrencyINR(product.price)}
+                {filteredProducts.map((product) => {
+                  const productSlug = (product as { slug?: string; id: string }).slug || product.id;
+                  return (
+                    <Link
+                      key={product.id}
+                      href={`/product/${productSlug}`}
+                      onClick={() => setSearchOpen(false)}
+                      className="group flex gap-4 p-3 bg-[#EEEAE0]/40 border border-[#E2DFD6] hover:border-[#176B45] transition-colors"
+                    >
+                      <div className="relative w-20 h-24 flex-shrink-0 bg-[#FAF9F5] overflow-hidden">
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform"
+                          sizes="80px"
+                        />
+                      </div>
+                      <div className="flex flex-col justify-between py-1 flex-1">
+                        <div>
+                          <span className="text-[9px] uppercase tracking-luxury text-[#AA9160] block">
+                            {product.category}
+                          </span>
+                          <h4 className="font-serif text-sm text-[#252A25] group-hover:text-[#176B45] line-clamp-1">
+                            {product.name}
+                          </h4>
+                          <span className="text-xs font-medium text-[#176B45]">
+                            {formatCurrencyINR(product.price)}
+                          </span>
+                        </div>
+                        <span className="text-[10px] uppercase tracking-luxury text-[#74786F] flex items-center gap-1">
+                          View Piece <ArrowRight className="w-2.5 h-2.5" />
                         </span>
                       </div>
-                      <span className="text-[10px] uppercase tracking-luxury text-[#74786F] flex items-center gap-1">
-                        View Piece <ArrowRight className="w-2.5 h-2.5" />
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>

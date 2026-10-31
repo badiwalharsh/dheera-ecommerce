@@ -3,26 +3,41 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { SampleProduct } from "@/constants";
 import { formatCurrencyINR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useShop } from "@/context/shop-context";
 import { Heart, Eye, ShoppingBag } from "lucide-react";
+import { SampleProduct } from "@/constants";
 
 interface ProductCardProps {
-  product: SampleProduct;
+  product: SampleProduct | {
+    id: string;
+    slug?: string;
+    name: string;
+    category: string;
+    price: number;
+    originalPrice?: number;
+    tag?: string;
+    image: string;
+    description: string;
+    sizes: readonly string[] | string[];
+    colors: readonly string[] | string[];
+    fabric?: string;
+    care?: string;
+  };
   priority?: boolean;
 }
 
 export function ProductCard({ product, priority = false }: ProductCardProps) {
   const { isInWishlist, toggleWishlist, setQuickViewProduct, addToBag } = useShop();
   const isFavorited = isInWishlist(product.id);
+  const productSlug = product.slug || product.id;
 
   return (
     <article className="group bg-[#FAF9F5] border border-[#E2DFD6] flex flex-col transition-all duration-300 hover:border-[#176B45]/50 hover:shadow-md">
       {/* Product Image Container */}
       <div className="relative aspect-[3/4] overflow-hidden bg-[#EEEAE0]">
-        <Link href={`/product?id=${product.id}`} className="block w-full h-full">
+        <Link href={`/product/${productSlug}`} className="block w-full h-full">
           <Image
             src={product.image}
             alt={product.name}
@@ -34,9 +49,11 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         </Link>
 
         {/* Badge Overlay */}
-        <div className="absolute top-3.5 left-3.5 pointer-events-none z-10">
-          <Badge variant="default">{product.tag}</Badge>
-        </div>
+        {product.tag && (
+          <div className="absolute top-3.5 left-3.5 pointer-events-none z-10">
+            <Badge variant="default">{product.tag}</Badge>
+          </div>
+        )}
 
         {/* Wishlist Heart Button */}
         <button
@@ -44,7 +61,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            toggleWishlist(product);
+            toggleWishlist(product as SampleProduct);
           }}
           className={`absolute top-3.5 right-3.5 z-10 p-2.5 rounded-full transition-all duration-200 ${
             isFavorited
@@ -63,7 +80,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setQuickViewProduct(product);
+              setQuickViewProduct(product as SampleProduct);
             }}
             className="flex-1 bg-[#FAF9F5] hover:bg-[#176B45] text-[#252A25] hover:text-[#FAF9F5] text-[10px] uppercase tracking-luxury font-medium py-2.5 px-3 transition-colors flex items-center justify-center gap-1.5 shadow-sm"
           >
@@ -76,7 +93,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              addToBag(product);
+              addToBag(product as SampleProduct);
             }}
             className="bg-[#176B45] hover:bg-[#315039] text-[#FAF9F5] p-2.5 transition-colors shadow-sm"
             aria-label="Add to shopping bag"
@@ -87,17 +104,17 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
       </div>
 
       {/* Product Content Details */}
-      <div className="p-5 flex flex-col flex-1 justify-between bg-[#FAF9F5]">
+      <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between bg-[#FAF9F5]">
         <div>
           <span className="text-[9px] uppercase tracking-luxury text-[#AA9160] font-medium block mb-1.5">
             {product.category}
           </span>
-          <Link href={`/product?id=${product.id}`}>
-            <h3 className="font-serif text-base text-[#252A25] group-hover:text-[#176B45] transition-colors leading-snug line-clamp-1 mb-2">
+          <Link href={`/product/${productSlug}`}>
+            <h3 className="font-serif text-sm sm:text-base text-[#252A25] group-hover:text-[#176B45] transition-colors leading-snug line-clamp-1 mb-1.5">
               {product.name}
             </h3>
           </Link>
-          <p className="text-xs text-[#74786F] line-clamp-2 leading-relaxed mb-4">
+          <p className="text-xs text-[#74786F] line-clamp-2 leading-relaxed mb-3">
             {product.description}
           </p>
         </div>

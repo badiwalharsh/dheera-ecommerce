@@ -6,9 +6,49 @@ export interface HydratedProduct extends Product {
   variants: ProductVariant[];
 }
 
+export interface ProductVariantInfo {
+  id: string;
+  size: string;
+  colour?: string;
+  sku: string;
+  priceModifier?: number;
+  inStock: boolean;
+  quantityAvailable: number;
+}
+
+export interface CatalogProduct {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  categorySlug: "kurta-sets" | "sarees" | "suits" | "dupattas" | string;
+  price: number;
+  originalPrice?: number;
+  tag?: string;
+  image: string;
+  gallery: string[];
+  sku: string;
+  description: string;
+  shortDescription?: string;
+  fabric: string;
+  care: string;
+  details: string[];
+  sizes: string[];
+  colors: string[];
+  inStock: boolean;
+  isReadyToShip: boolean;
+  isMadeToOrder: boolean;
+  isFeatured: boolean;
+  isNewArrival: boolean;
+  isCustomizable: boolean;
+  variants: ProductVariantInfo[];
+  isDevelopmentFixture?: boolean;
+}
+
 export interface ClientCartItem {
   id: string;
   productId: string;
+  slug?: string;
   name: string;
   category: string;
   price: number;
@@ -19,3 +59,22 @@ export interface ClientCartItem {
   quantity: number;
 }
 
+export interface ProductFilterState {
+  category?: string;
+  priceRange?: string; // "all" | "under-3000" | "3000-4000" | "above-4000"
+  minPrice?: number;
+  maxPrice?: number;
+  size?: string;
+  color?: string;
+  inStockOnly?: boolean;
+  readyToShipOnly?: boolean;
+  madeToOrderOnly?: boolean;
+  searchQuery?: string;
+}
+
+export type SortOption =
+  | "featured"
+  | "newest"
+  | "price-asc"
+  | "price-desc"
+  | "alpha";

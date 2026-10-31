@@ -6,23 +6,40 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
+    const authUser = await getAuthenticatedUser(req);
+    if (!authUser) {
+      return NextResponse.json(
+        { error: "Unauthorized access: Valid patron session required." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const requestedUserId = searchParams.get("userId");
     const requestedEmail = searchParams.get("email");
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.max(1, Math.min(50, parseInt(searchParams.get("limit") || "10", 10)));
 
-    const authUser = await getAuthenticatedUser(req);
-    const targetUserId = requestedUserId || authUser?.id;
-    const targetEmail = requestedEmail || authUser?.email;
-
-    if (!targetUserId) {
-      return NextResponse.json({ error: "Unauthorized access." }, { status: 401 });
+    if (requestedUserId && requestedUserId !== authUser.id && authUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Forbidden: Cannot view orders of another customer." },
+        { status: 403 }
+      );
     }
 
-    if (authUser && authUser.id !== targetUserId && authUser.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden: Cannot view orders of another customer." }, { status: 403 });
+    if (
+      requestedEmail &&
+      requestedEmail.toLowerCase() !== authUser.email.toLowerCase() &&
+      authUser.role !== "admin"
+    ) {
+      return NextResponse.json(
+        { error: "Forbidden: Cannot view orders of another customer email." },
+        { status: 403 }
+      );
     }
+
+    const targetUserId = authUser.role === "admin" && requestedUserId ? requestedUserId : authUser.id;
+    const targetEmail = authUser.role === "admin" && requestedEmail ? requestedEmail : authUser.email;
 
     const allOrders = await getCustomerOrders(targetUserId, targetEmail);
 
@@ -75,3 +92,4 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+

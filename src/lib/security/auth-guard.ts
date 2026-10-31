@@ -8,6 +8,7 @@ export interface AuthenticatedUser {
   email: string;
   fullName?: string;
   role?: string;
+  isEmailVerified: boolean;
 }
 
 /**
@@ -31,6 +32,7 @@ export async function getAuthenticatedUser(
           email: user.email || "",
           fullName: user.user_metadata?.full_name,
           role: user.user_metadata?.role || "customer",
+          isEmailVerified: !!user.email_confirmed_at,
         };
       }
     } catch {
@@ -49,7 +51,8 @@ export async function getAuthenticatedUser(
           id: parsed.id,
           email: parsed.email,
           fullName: parsed.name,
-          role: "customer",
+          role: parsed.role || "customer",
+          isEmailVerified: parsed.isEmailVerified !== false,
         };
       }
     }
@@ -66,10 +69,12 @@ export async function getAuthenticatedUser(
         id: headerUserId,
         email: headerUserEmail,
         fullName: req.headers.get("x-user-name") || "Patron",
-        role: "customer",
+        role: req.headers.get("x-user-role") || "customer",
+        isEmailVerified: req.headers.get("x-email-verified") !== "false",
       };
     }
   }
 
   return null;
 }
+

@@ -194,7 +194,7 @@ async function run() {
     if (server) {
       try {
         execSync(`taskkill /F /T /PID ${server.pid}`);
-      } catch {}
+      } catch { }
     }
     process.exit(1);
   }
@@ -444,7 +444,7 @@ async function run() {
   console.log("\nStopping test server...");
   try {
     execSync(`taskkill /F /T /PID ${server.pid}`);
-  } catch {}
+  } catch { }
 
   console.log("\n=========================================================");
   console.log(`ALL TESTS COMPLETED: ${passed} / ${total} TESTS PASSED!`);

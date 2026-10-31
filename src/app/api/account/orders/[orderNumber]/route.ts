@@ -16,7 +16,18 @@ export async function GET(
     const requestedUserId = searchParams.get("userId");
 
     const authUser = await getAuthenticatedUser(req);
-    const effectiveUserId = requestedUserId || authUser?.id || null;
+
+    // If caller has neither a valid session nor an access token, reject immediately
+    if (!authUser && !providedToken) {
+      return NextResponse.json(
+        { error: "Unauthorized: Valid patron session or order access token required." },
+        { status: 401 }
+      );
+    }
+
+    // Never trust client-supplied requestedUserId unless caller is verified admin
+    const effectiveUserId =
+      authUser?.role === "admin" && requestedUserId ? requestedUserId : authUser?.id || null;
 
     if (!orderNumber) {
       return NextResponse.json({ error: "Order number is required." }, { status: 400 });
@@ -54,3 +65,4 @@ export async function GET(
     );
   }
 }
+

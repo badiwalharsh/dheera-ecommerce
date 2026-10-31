@@ -18,3 +18,4 @@ export default function WishlistPage() {
     </AccountLayout>
   );
 }
+

@@ -11,20 +11,25 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
+    const authUser = await getAuthenticatedUser(req);
+    if (!authUser) {
+      return NextResponse.json(
+        { error: "Unauthorized access: Valid patron session required." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const requestedUserId = searchParams.get("userId");
 
-    const authUser = await getAuthenticatedUser(req);
-    const targetUserId = requestedUserId || authUser?.id;
-
-    if (!targetUserId) {
-      return NextResponse.json({ error: "Unauthorized access." }, { status: 401 });
+    if (requestedUserId && requestedUserId !== authUser.id && authUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Forbidden: Cannot view wishlist of another patron." },
+        { status: 403 }
+      );
     }
 
-    if (authUser && authUser.id !== targetUserId && authUser.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden: Cannot view wishlist of another patron." }, { status: 403 });
-    }
-
+    const targetUserId = authUser.role === "admin" && requestedUserId ? requestedUserId : authUser.id;
     const items = await getCustomerWishlist(targetUserId);
     return NextResponse.json(items);
   } catch (err: any) {
@@ -37,19 +42,25 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const authUser = await getAuthenticatedUser(req);
+    if (!authUser) {
+      return NextResponse.json(
+        { error: "Unauthorized access: Valid patron session required." },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const { userId, productId, syncIds } = body;
 
-    const authUser = await getAuthenticatedUser(req);
-    const targetUserId = userId || authUser?.id;
-
-    if (!targetUserId) {
-      return NextResponse.json({ error: "Unauthorized access." }, { status: 401 });
+    if (userId && userId !== authUser.id && authUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Forbidden: Cannot modify wishlist of another patron." },
+        { status: 403 }
+      );
     }
 
-    if (authUser && authUser.id !== targetUserId && authUser.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden: Cannot modify wishlist of another patron." }, { status: 403 });
-    }
+    const targetUserId = authUser.role === "admin" && userId ? userId : authUser.id;
 
     // Bulk sync from guest storage
     if (Array.isArray(syncIds)) {
@@ -73,20 +84,26 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const authUser = await getAuthenticatedUser(req);
+    if (!authUser) {
+      return NextResponse.json(
+        { error: "Unauthorized access: Valid patron session required." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const productId = searchParams.get("productId");
     const requestedUserId = searchParams.get("userId");
 
-    const authUser = await getAuthenticatedUser(req);
-    const targetUserId = requestedUserId || authUser?.id;
-
-    if (!targetUserId) {
-      return NextResponse.json({ error: "Unauthorized access." }, { status: 401 });
+    if (requestedUserId && requestedUserId !== authUser.id && authUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Forbidden: Cannot modify wishlist of another patron." },
+        { status: 403 }
+      );
     }
 
-    if (authUser && authUser.id !== targetUserId && authUser.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden: Cannot modify wishlist of another patron." }, { status: 403 });
-    }
+    const targetUserId = authUser.role === "admin" && requestedUserId ? requestedUserId : authUser.id;
 
     if (!productId) {
       return NextResponse.json({ error: "Product ID is required." }, { status: 400 });

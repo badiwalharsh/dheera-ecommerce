@@ -438,37 +438,51 @@ async function unsetOtherDefaultAddresses(userId: string, excludeId?: string) {
 export function generateTrackingTimeline(
   order: ConfirmedOrderDetails
 ): OrderTrackingTimelineStep[] {
-  const status = order.status;
-  const isPaid = order.paymentStatus === "captured" || order.status === "confirmed";
+  const statusStr = String(order.status).toLowerCase();
+  const isPaid = order.paymentStatus === "captured" || statusStr === "confirmed";
   const createdDate = new Date(order.createdAt);
 
-  const formatStepDate = (daysToAdd: number) => {
-    const d = new Date(createdDate);
-    d.setDate(d.getDate() + daysToAdd);
-    return d.toLocaleDateString("en-IN", {
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-IN", {
       day: "numeric",
       month: "short",
       year: "numeric",
     });
   };
 
-  // Determine stage index 0-5
-  let currentStageIndex = 0;
-  const statusStr = String(status);
+  const formatStepOffset = (daysToAdd: number) => {
+    const d = new Date(createdDate);
+    d.setDate(d.getDate() + daysToAdd);
+    return formatDate(d);
+  };
+
+  // Determine stage progression strictly based on recorded status
+  let completedStageCount = 0; // how many stages are fully finished
+  let currentStage = -1; // which stage is currently active
+
   if (statusStr === "cancelled" || statusStr === "refunded") {
-    currentStageIndex = 0;
+    // Only placed is recorded; order is cancelled
+    completedStageCount = 1;
+    currentStage = -1;
   } else if (statusStr === "delivered") {
-    currentStageIndex = 5;
+    completedStageCount = 6; // all completed
+    currentStage = -1;
   } else if (statusStr === "out_for_delivery" || statusStr === "in_transit") {
-    currentStageIndex = 4;
+    completedStageCount = 4; // placed, confirmed, processing, dispatched completed
+    currentStage = 4; // in_transit is current
   } else if (statusStr === "dispatched") {
-    currentStageIndex = 3;
+    completedStageCount = 3; // placed, confirmed, processing completed
+    currentStage = 3; // dispatched is current
   } else if (statusStr === "processing") {
-    currentStageIndex = 2;
+    completedStageCount = 2; // placed, confirmed completed
+    currentStage = 2; // processing is current
   } else if (isPaid || statusStr === "confirmed") {
-    currentStageIndex = 1;
+    completedStageCount = 2; // placed, confirmed completed
+    currentStage = 2; // next active stage is processing
   } else {
-    currentStageIndex = 0; // placed
+    // pending or pending_payment
+    completedStageCount = 1; // placed is completed
+    currentStage = 1; // confirmed is awaiting payment
   }
 
   const stepsDef: Array<{
@@ -476,18 +490,21 @@ export function generateTrackingTimeline(
     label: string;
     description: string;
     daysOffset: number;
+    recordedDate?: string;
   }> = [
     {
       step: "placed",
       label: "Order Placed",
       description: "Order received and queued at our atelier.",
       daysOffset: 0,
+      recordedDate: formatDate(createdDate),
     },
     {
       step: "confirmed",
       label: "Payment Confirmed",
       description: "Transaction verified via Razorpay secure gateway.",
       daysOffset: 0,
+      recordedDate: isPaid ? formatDate(createdDate) : undefined,
     },
     {
       step: "processing",
@@ -517,10 +534,19 @@ export function generateTrackingTimeline(
 
   return stepsDef.map((s, idx) => {
     let stepStatus: "completed" | "current" | "upcoming" = "upcoming";
-    if (idx < currentStageIndex) {
+    let timestamp: string | undefined = undefined;
+    let estimatedDate: string | undefined = undefined;
+
+    if (idx < completedStageCount) {
       stepStatus = "completed";
-    } else if (idx === currentStageIndex) {
+      // Actual recorded date or completion date
+      timestamp = s.recordedDate || formatStepOffset(s.daysOffset);
+    } else if (idx === currentStage) {
       stepStatus = "current";
+      estimatedDate = formatStepOffset(s.daysOffset);
+    } else {
+      stepStatus = "upcoming";
+      estimatedDate = formatStepOffset(s.daysOffset);
     }
 
     return {
@@ -528,8 +554,8 @@ export function generateTrackingTimeline(
       label: s.label,
       description: s.description,
       status: stepStatus,
-      timestamp: idx <= currentStageIndex ? formatStepDate(s.daysOffset) : undefined,
-      estimatedDate: idx > currentStageIndex ? formatStepDate(s.daysOffset) : undefined,
+      timestamp,
+      estimatedDate,
     };
   });
 }

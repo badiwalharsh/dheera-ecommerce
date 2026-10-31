@@ -12,8 +12,27 @@
  */
 
 const http = require("http");
+const { spawn, execSync } = require("child_process");
+const path = require("path");
 
 const BASE_URL = "http://localhost:3000";
+
+function pollServer(port = 3000, retries = 30) {
+  return new Promise((resolve, reject) => {
+    const check = (r) => {
+      http
+        .get(`http://localhost:${port}/account/login`, (res) => {
+          if (res.statusCode === 200 || res.statusCode === 307) resolve();
+          else setTimeout(() => check(r - 1), 500);
+        })
+        .on("error", () => {
+          if (r <= 0) reject(new Error("Server timeout"));
+          else setTimeout(() => check(r - 1), 500);
+        });
+    };
+    check(retries);
+  });
+}
 
 function request(options, postData = null) {
   return new Promise((resolve, reject) => {
@@ -49,6 +68,7 @@ async function runTestSuite() {
   console.log(" DHEERA — PHASE 5: CUSTOMER ACCOUNTS VERIFICATION SUITE ");
   console.log("=======================================================\n");
 
+  let server = null;
   let passed = 0;
   let failed = 0;
 
@@ -61,6 +81,25 @@ async function runTestSuite() {
       if (details) console.error(`        ${details}`);
       failed++;
     }
+  }
+
+  // 1. Check if server already running or start one
+  let serverRunning = false;
+  try {
+    await pollServer(3000, 2);
+    serverRunning = true;
+  } catch {
+    serverRunning = false;
+  }
+
+  if (!serverRunning) {
+    console.log("Starting Next.js production server for test suite...");
+    server = spawn("cmd.exe", ["/c", "npx", "next", "start", "-p", "3000"], {
+      cwd: path.join(__dirname, ".."),
+      stdio: "ignore",
+    });
+    await pollServer(3000, 30);
+    console.log("Next.js server ready at http://localhost:3000\n");
   }
 
   const TEST_USER_A = {
@@ -573,6 +612,12 @@ async function runTestSuite() {
   } catch (err) {
     console.error("Test Suite execution error:", err);
     failed++;
+  } finally {
+    if (server) {
+      try {
+        execSync(`taskkill /F /T /PID ${server.pid}`);
+      } catch {}
+    }
   }
 
   console.log("\n=======================================================");
@@ -585,3 +630,4 @@ async function runTestSuite() {
 }
 
 runTestSuite();
+

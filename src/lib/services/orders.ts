@@ -460,10 +460,13 @@ export async function getCustomerOrders(
 
 /**
  * Associates past guest orders with customer's authenticated user_id
+ * Parameterless RPC in Supabase strictly derives caller identity from auth.uid()
+ * and validates email confirmation.
  */
 export async function associateGuestOrdersForUser(
   userId: string,
-  email: string
+  email: string,
+  isAdmin: boolean = false
 ): Promise<number> {
   let count = 0;
   const cleanEmail = email.trim().toLowerCase();
@@ -471,31 +474,22 @@ export async function associateGuestOrdersForUser(
   if (isSupabaseConfigured()) {
     try {
       const supabase = createClientServer();
-      const { data, error } = await supabase.rpc("associate_guest_orders", {
-        p_user_id: userId,
-        p_email: cleanEmail,
-      });
-
-      if (!error && typeof data === "number") {
-        count = data;
+      if (isAdmin) {
+        const { data, error } = await supabase.rpc("associate_guest_orders_admin", {
+          p_target_user_id: userId,
+        });
+        if (!error && typeof data === "number") count = data;
       } else {
-        // Direct update fallback if RPC not installed
-        const { error: updErr, count: updCount } = await supabase
-          .from("orders")
-          .update({ user_id: userId, updated_at: new Date().toISOString() })
-          .ilike("email", cleanEmail)
-          .is("user_id", null);
-
-        if (!updErr && typeof updCount === "number") {
-          count = updCount;
-        }
+        // Parameterless call deriving user from auth.uid() and verified email
+        const { data, error } = await supabase.rpc("associate_guest_orders");
+        if (!error && typeof data === "number") count = data;
       }
     } catch {
       // Fallback
     }
   }
 
-  // Update in-memory orders
+  // Update in-memory orders (only guest orders where userId is null)
   MEMORY_ORDERS.forEach((ord) => {
     if (ord.customerInfo.email.toLowerCase() === cleanEmail && !ord.userId) {
       ord.userId = userId;

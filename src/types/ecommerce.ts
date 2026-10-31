@@ -1,5 +1,15 @@
 import { Product, ProductImage, Category, ProductVariant } from "./database";
 
+export interface CategoryInfo {
+  id: string;
+  name: string;
+  slug: string;
+  subtitle?: string;
+  description?: string;
+  image?: string;
+  href?: string;
+}
+
 export interface HydratedProduct extends Product {
   category: Category;
   images: ProductImage[];

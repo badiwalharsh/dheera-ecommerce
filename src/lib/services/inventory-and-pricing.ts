@@ -252,3 +252,46 @@ export async function validateCartServer(rawItems: CartItem[]): Promise<Validati
     errors,
   };
 }
+
+/**
+ * Updates stock directly in the in-memory repository
+ */
+export function setVariantStock(
+  productId: string,
+  size: string,
+  colour: string = "Standard",
+  newQty: number
+): void {
+  const key = `${productId}_${size}_${colour || "Standard"}`;
+  FIXTURE_INVENTORY.set(key, Math.max(0, newQty));
+}
+
+/**
+ * Atomically adjusts stock by delta preventing negative inventory
+ */
+export function adjustVariantStockAtomic(
+  productId: string,
+  size: string,
+  colour: string = "Standard",
+  delta: number
+): { success: boolean; previous: number; current: number; error?: string } {
+  const key = `${productId}_${size}_${colour || "Standard"}`;
+  const previous = FIXTURE_INVENTORY.has(key) ? FIXTURE_INVENTORY.get(key)! : 5;
+  const current = previous + delta;
+
+  if (current < 0) {
+    return {
+      success: false,
+      previous,
+      current: previous,
+      error: `Insufficient stock: Cannot reduce stock below zero (current: ${previous}, requested delta: ${delta})`,
+    };
+  }
+
+  FIXTURE_INVENTORY.set(key, current);
+  return { success: true, previous, current };
+}
+
+export function getAllStockEntries(): Map<string, number> {
+  return FIXTURE_INVENTORY;
+}

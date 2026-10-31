@@ -26,6 +26,10 @@ export interface Coupon {
   description?: string;
   isActive: boolean;
   isDevelopmentFixture: boolean;
+  usageLimit?: number;
+  timesUsed?: number;
+  startsAt?: string;
+  expiresAt?: string;
 }
 
 export interface CustomerInfo {
@@ -53,6 +57,9 @@ export interface OrderPricingSummary {
   shippingFee: number;
   taxAmount: number; // Inclusive in India GST standard
   totalAmount: number;
+  total?: number; // Ergonomic alias for totalAmount
+  isFreeShipping?: boolean;
+  currency?: string;
   appliedCoupon?: {
     code: string;
     discountType: DiscountType;
@@ -138,7 +145,12 @@ export interface ConfirmedOrderDetails {
   paymentStatus: PaymentStatus;
   createdAt: string;
   customerInfo: CustomerInfo;
-  shippingAddress: ShippingAddress;
+  shippingAddress: ShippingAddress & {
+    recipientName?: string;
+    addressLine1?: string;
+    addressLine2?: string;
+    postalCode?: string;
+  };
   items: Array<{
     id: string;
     productId: string;
@@ -150,6 +162,7 @@ export interface ConfirmedOrderDetails {
     quantity: number;
     unitPrice: number;
     totalPrice: number;
+    price?: number;
     image: string;
   }>;
   pricing: OrderPricingSummary;
@@ -157,8 +170,14 @@ export interface ConfirmedOrderDetails {
     gateway: string;
     gatewayOrderId: string;
     gatewayPaymentId?: string;
+    razorpayOrderId?: string;
+    razorpayPaymentId?: string;
+    amount?: number;
     status: PaymentStatus;
     currency: string;
     isTestMode: boolean;
   };
+  trackingNumber?: string;
+  shippingCarrier?: string;
+  notes?: string;
 }

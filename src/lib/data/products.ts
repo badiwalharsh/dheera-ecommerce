@@ -86,7 +86,7 @@ export async function getCategories(): Promise<CategoryInfo[]> {
     }
   }
 
-  return CATEGORIES.map((c) => ({ ...c }));
+  return DYNAMIC_CATEGORIES.map((c) => ({ ...c }));
 }
 
 /**
@@ -431,4 +431,77 @@ export async function getRelatedProducts(
   const differentCategory = others.filter((p) => p.categorySlug !== categorySlug);
 
   return [...sameCategory, ...differentCategory].slice(0, limit);
+}
+
+// In-memory dynamic categories store
+let DYNAMIC_CATEGORIES: CategoryInfo[] = CATEGORIES.map((c) => ({
+  id: c.id,
+  name: c.name,
+  slug: c.slug,
+  subtitle: c.description || "",
+  description: c.description || "",
+  image: c.image || "/images/banners/hero-editorial.jpg",
+  href: `/collections/${c.slug}`,
+}));
+
+export function getMutableProducts(): CatalogProduct[] {
+  return FIXTURE_PRODUCTS;
+}
+
+export function getMutableCategories(): CategoryInfo[] {
+  return DYNAMIC_CATEGORIES;
+}
+
+export function addDynamicProduct(product: CatalogProduct): void {
+  const existingIdx = FIXTURE_PRODUCTS.findIndex((p) => p.id === product.id || p.slug === product.slug);
+  if (existingIdx >= 0) {
+    FIXTURE_PRODUCTS[existingIdx] = product;
+  } else {
+    FIXTURE_PRODUCTS.unshift(product);
+  }
+}
+
+export function updateDynamicProduct(id: string, updates: Partial<CatalogProduct>): boolean {
+  const index = FIXTURE_PRODUCTS.findIndex((p) => p.id === id || p.slug === id);
+  if (index >= 0) {
+    FIXTURE_PRODUCTS[index] = { ...FIXTURE_PRODUCTS[index], ...updates };
+    return true;
+  }
+  return false;
+}
+
+export function deleteDynamicProduct(id: string): boolean {
+  const index = FIXTURE_PRODUCTS.findIndex((p) => p.id === id || p.slug === id);
+  if (index >= 0) {
+    FIXTURE_PRODUCTS.splice(index, 1);
+    return true;
+  }
+  return false;
+}
+
+export function addDynamicCategory(cat: CategoryInfo): void {
+  const existingIdx = DYNAMIC_CATEGORIES.findIndex((c) => c.id === cat.id || c.slug === cat.slug);
+  if (existingIdx >= 0) {
+    DYNAMIC_CATEGORIES[existingIdx] = cat;
+  } else {
+    DYNAMIC_CATEGORIES.push(cat);
+  }
+}
+
+export function updateDynamicCategory(id: string, updates: Partial<CategoryInfo>): boolean {
+  const index = DYNAMIC_CATEGORIES.findIndex((c) => c.id === id || c.slug === id);
+  if (index >= 0) {
+    DYNAMIC_CATEGORIES[index] = { ...DYNAMIC_CATEGORIES[index], ...updates };
+    return true;
+  }
+  return false;
+}
+
+export function deleteDynamicCategory(id: string): boolean {
+  const index = DYNAMIC_CATEGORIES.findIndex((c) => c.id === id || c.slug === id);
+  if (index >= 0) {
+    DYNAMIC_CATEGORIES.splice(index, 1);
+    return true;
+  }
+  return false;
 }

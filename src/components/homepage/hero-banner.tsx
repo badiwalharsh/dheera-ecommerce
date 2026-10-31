@@ -2,8 +2,11 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { getStoreContent } from "@/lib/services/admin";
 
 export function HeroBanner() {
+  const content = getStoreContent();
+
   return (
     <section className="bg-[#EEEAE0] border-b border-[#E2DFD6] relative overflow-hidden">
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 min-h-[520px] lg:min-h-[640px]">
@@ -18,19 +21,18 @@ export function HeroBanner() {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-[#176B45] leading-[1.15] sm:leading-[1.12] mb-4 sm:mb-6 font-normal break-words">
-            Timeless Styles, <br className="hidden sm:block" />
-            Yours Truly.
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-[#176B45] leading-[1.15] sm:leading-[1.12] mb-4 sm:mb-6 font-normal break-words whitespace-pre-line">
+            {content.heroHeading || "Timeless Styles,\nYours Truly."}
           </h1>
 
           <p className="text-xs sm:text-sm md:text-base text-[#74786F] leading-relaxed max-w-lg mb-6 sm:mb-8 font-normal break-words">
-            Handcrafted apparel inspired by Indian traditions, designed for the modern you.
+            {content.heroDescription || "Handcrafted apparel inspired by Indian traditions, designed for the modern you."}
           </p>
 
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-            <Link href="/collections">
+            <Link href={content.heroCtaLink || "/collections"}>
               <Button variant="primary" size="lg" className="text-xs px-5 sm:px-6">
-                EXPLORE COLLECTIONS &nbsp;→
+                {content.heroCtaText || "EXPLORE COLLECTIONS"} &nbsp;→
               </Button>
             </Link>
             <Link href="/product/custom">

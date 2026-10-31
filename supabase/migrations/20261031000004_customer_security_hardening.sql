@@ -247,3 +247,4 @@ DO $$ BEGIN
   -- Only public.is_admin() has UPDATE privileges on public.orders.
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+

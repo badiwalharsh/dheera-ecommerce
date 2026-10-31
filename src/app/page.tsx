@@ -6,8 +6,11 @@ import { BrandStory } from "@/components/homepage/brand-story";
 import { CustomizationBanner } from "@/components/homepage/customization-banner";
 import { BrandValues } from "@/components/homepage/brand-values";
 import { Newsletter } from "@/components/homepage/newsletter";
+import { getStoreContent } from "@/lib/services/admin";
 
 export default function HomePage() {
+  const content = getStoreContent();
+
   return (
     <div className="flex flex-col">
       {/* 1. Hero Banner */}
@@ -29,7 +32,10 @@ export default function HomePage() {
       <BrandValues />
 
       {/* 7. Newsletter ("A Little DHEERA in Your Inbox.") */}
-      <Newsletter />
+      <Newsletter
+        heading={content.newsletterHeading}
+        description={content.newsletterText}
+      />
     </div>
   );
 }

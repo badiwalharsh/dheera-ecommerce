@@ -456,3 +456,4 @@ async function runSecurityAudit() {
 }
 
 runSecurityAudit();
+

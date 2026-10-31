@@ -1,9 +1,17 @@
 import React from "react";
 import { BRAND } from "@/constants";
+import { getStoreContent } from "@/lib/services/admin";
 
 export function AnnouncementBar() {
-  const parts = BRAND.announcementText.split("|").map((p) => p.trim());
-  const leftPart = parts[0] || BRAND.announcementText;
+  const content = getStoreContent();
+
+  if (!content.promotionalBannerActive) {
+    return null;
+  }
+
+  const rawText = content.promotionalBannerText || BRAND.announcementText;
+  const parts = rawText.split("|").map((p) => p.trim());
+  const leftPart = parts[0] || rawText;
   const rightPart = parts[1] || "";
 
   return (

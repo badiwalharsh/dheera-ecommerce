@@ -4,8 +4,11 @@ import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { BRAND } from "@/constants";
+import { getStoreContent } from "@/lib/services/admin";
 
 export function BrandStory() {
+  const content = getStoreContent();
+
   return (
     <section className="py-14 sm:py-20 md:py-28 bg-[#FAF9F5] border-b border-[#E2DFD6] overflow-x-hidden">
       <Container size="default">
@@ -39,14 +42,13 @@ export function BrandStory() {
               <span>Our Story & Vision</span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-[#176B45] leading-[1.18] font-normal break-words">
-              Rooted in Heritage. <br />
-              Made for Today.
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-[#176B45] leading-[1.18] font-normal break-words whitespace-pre-line">
+              {content.brandStoryHeading || "Rooted in Heritage.\nMade for Today."}
             </h2>
 
             <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm md:text-base text-[#74786F] leading-relaxed font-normal break-words">
               <p>
-                DHEERA was born from an intimate reverence for India&apos;s living textile heritage and a conviction that age-old artisanal craft belongs effortlessly in the modern, global wardrobe.
+                {content.brandStoryBody || "DHEERA was born from an intimate reverence for India's living textile heritage and a conviction that age-old artisanal craft belongs effortlessly in the modern, global wardrobe."}
               </p>
               <p>
                 From hand-selected pure Chanderis to intricate zardozi and delicate scalloped borders, every piece is shaped in our Indian ateliers by master craftsmen who have practiced their art across generations.

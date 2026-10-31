@@ -150,3 +150,116 @@ export async function validateCoupon(
   };
 }
 
+/**
+ * Returns all coupons for administrative management
+ */
+export async function getAllCouponsAdmin(): Promise<Coupon[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClientServer();
+      const { data, error } = await supabase.from("coupons").select("*").order("created_at", { ascending: false });
+      if (!error && data && data.length > 0) {
+        return (data as any[]).map((c) => ({
+          id: c.id,
+          code: c.code,
+          discountType: c.discount_type,
+          discountValue: Number(c.discount_value),
+          minOrderAmount: Number(c.min_order_amount || 0),
+          maxDiscountAmount: c.max_discount_amount ? Number(c.max_discount_amount) : undefined,
+          description: c.description,
+          isActive: c.is_active,
+          isDevelopmentFixture: c.is_development_fixture,
+          startsAt: c.starts_at,
+          expiresAt: c.expires_at,
+          usageLimit: c.usage_limit,
+          timesUsed: c.times_used || 0,
+        }));
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
+  return FIXTURE_COUPONS;
+}
+
+export async function createCouponAdmin(data: Partial<Coupon>): Promise<Coupon> {
+  const code = (data.code || "").trim().toUpperCase();
+  const existing = FIXTURE_COUPONS.find((c) => c.code === code);
+  if (existing) {
+    throw new Error(`Coupon with code "${code}" already exists.`);
+  }
+
+  const newCoupon: Coupon = {
+    id: data.id || `coupon-${code.toLowerCase()}`,
+    code,
+    discountType: data.discountType || "percentage",
+    discountValue: Number(data.discountValue) || 10,
+    minOrderAmount: Number(data.minOrderAmount) || 0,
+    maxDiscountAmount: data.maxDiscountAmount ? Number(data.maxDiscountAmount) : undefined,
+    description: data.description || `Promotional discount ${code}`,
+    isActive: data.isActive !== false,
+    isDevelopmentFixture: false,
+    usageLimit: data.usageLimit ? Number(data.usageLimit) : undefined,
+    timesUsed: 0,
+  };
+
+  FIXTURE_COUPONS.push(newCoupon);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClientServer();
+      await supabase.from("coupons").insert({
+        code: newCoupon.code,
+        discount_type: newCoupon.discountType,
+        discount_value: newCoupon.discountValue,
+        min_order_amount: newCoupon.minOrderAmount,
+        max_discount_amount: newCoupon.maxDiscountAmount,
+        description: newCoupon.description,
+        is_active: newCoupon.isActive,
+        usage_limit: newCoupon.usageLimit,
+      });
+    } catch {
+      // Fallback
+    }
+  }
+
+  return newCoupon;
+}
+
+export async function updateCouponAdmin(id: string, updates: Partial<Coupon>): Promise<Coupon | null> {
+  const index = FIXTURE_COUPONS.findIndex((c) => c.id === id || c.code === id.toUpperCase());
+  if (index === -1) return null;
+
+  FIXTURE_COUPONS[index] = { ...FIXTURE_COUPONS[index], ...updates };
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClientServer();
+      await supabase.from("coupons").update(updates).eq("id", id);
+    } catch {
+      // Fallback
+    }
+  }
+
+  return FIXTURE_COUPONS[index];
+}
+
+export async function deleteCouponAdmin(id: string): Promise<boolean> {
+  const index = FIXTURE_COUPONS.findIndex((c) => c.id === id || c.code === id.toUpperCase());
+  if (index === -1) return false;
+
+  FIXTURE_COUPONS.splice(index, 1);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createClientServer();
+      await supabase.from("coupons").delete().eq("id", id);
+    } catch {
+      // Fallback
+    }
+  }
+
+  return true;
+}
+

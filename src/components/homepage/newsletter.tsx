@@ -5,7 +5,12 @@ import { Container } from "@/components/ui/container";
 import { BRAND } from "@/constants";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 
-export function Newsletter() {
+interface NewsletterProps {
+  heading?: string;
+  description?: string;
+}
+
+export function Newsletter({ heading, description }: NewsletterProps = {}) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -34,11 +39,11 @@ export function Newsletter() {
           </span>
 
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-[#176B45] mb-2 sm:mb-4 break-words">
-            A Little DHEERA in Your Inbox.
+            {heading || "A Little DHEERA in Your Inbox."}
           </h2>
 
           <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed mb-6 sm:mb-8 max-w-lg mx-auto break-words">
-            Receive intimate previews of upcoming collection drops, artisanal stories, and bespoke styling inspiration.
+            {description || "Receive intimate previews of upcoming collection drops, artisanal stories, and bespoke styling inspiration."}
           </p>
 
           {status === "success" ? (

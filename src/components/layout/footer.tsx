@@ -88,7 +88,22 @@ export function Footer() {
               Client Care
             </h4>
             <ul className="space-y-2 text-xs text-[#74786F]">
-              <li className="flex items-center gap-2">
+              <li>
+                <Link href="/faq" className="hover:text-[#176B45] transition-colors">
+                  Frequently Asked Questions
+                </Link>
+              </li>
+              <li>
+                <Link href="/shipping" className="hover:text-[#176B45] transition-colors">
+                  Shipping & Delivery Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/returns" className="hover:text-[#176B45] transition-colors">
+                  Returns & Size Exchanges
+                </Link>
+              </li>
+              <li className="pt-2 flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-[#176B45] flex-shrink-0" />
                 <a href={`mailto:${BRAND.contactEmail}`} className="hover:text-[#176B45] transition-colors">
                   {BRAND.contactEmail}
@@ -99,7 +114,7 @@ export function Footer() {
                 <span>{BRAND.contactHours}</span>
               </li>
               <li className="pt-1 text-[10px] sm:text-[11px] text-[#74786F]/80">
-                Complimentary shipping on selected orders. Worldwide delivery options available.
+                Complimentary shipping on orders above ₹5,000. Worldwide delivery options available.
               </li>
             </ul>
           </div>
@@ -108,13 +123,25 @@ export function Footer() {
         {/* Bottom Bar: Copyright & Policies */}
         <div className="pt-6 sm:pt-8 flex flex-col md:flex-row items-center justify-between text-[10px] sm:text-[11px] text-[#74786F]/80 gap-3 text-center sm:text-left">
           <p>© {new Date().getFullYear()} DHEERA — Apparel & Lifestyle. All rights reserved. {BRAND.philosophy}.</p>
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             <Link href="/about" className="hover:text-[#176B45] transition-colors">
-              Brand Philosophy
+              About
             </Link>
             <span className="text-[#AA9160]">✦</span>
-            <Link href="/contact" className="hover:text-[#176B45] transition-colors">
-              Care & Returns
+            <Link href="/shipping" className="hover:text-[#176B45] transition-colors">
+              Shipping
+            </Link>
+            <span className="text-[#AA9160]">✦</span>
+            <Link href="/returns" className="hover:text-[#176B45] transition-colors">
+              Returns
+            </Link>
+            <span className="text-[#AA9160]">✦</span>
+            <Link href="/privacy" className="hover:text-[#176B45] transition-colors">
+              Privacy Policy
+            </Link>
+            <span className="text-[#AA9160]">✦</span>
+            <Link href="/terms" className="hover:text-[#176B45] transition-colors">
+              Terms & Conditions
             </Link>
             <span className="text-[#AA9160]">✦</span>
             <Link href="/admin" className="hover:text-[#176B45] transition-colors uppercase text-[9px] sm:text-[10px] tracking-wider">

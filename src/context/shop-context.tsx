@@ -155,8 +155,32 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       colour?: string,
       quantity: number = 1
     ) => {
+      if (product.inStock === false) {
+        showNotification(`Garment "${product.name}" is archived and cannot be added to bag`);
+        return;
+      }
+
       const chosenSize = size || (product.sizes && product.sizes[0]) || "Standard";
       const chosenColour = colour || (product.colors && product.colors[0]) || "Standard";
+
+      // Variant stock check
+      if ("variants" in product && Array.isArray((product as any).variants) && (product as any).variants.length > 0) {
+        const variants: any[] = (product as any).variants;
+        const matched =
+          variants.find(
+            (v) =>
+              v.size?.toLowerCase() === chosenSize.toLowerCase() &&
+              (!colour || !v.colour || v.colour.toLowerCase() === chosenColour.toLowerCase())
+          ) ||
+          variants.find((v) => v.size?.toLowerCase() === chosenSize.toLowerCase()) ||
+          (variants.length === 1 ? variants[0] : null);
+
+        if (!matched || matched.inStock === false) {
+          showNotification(`Variant size "${chosenSize}" of "${product.name}" is currently unavailable`);
+          return;
+        }
+      }
+
       const qty = Math.max(1, Math.min(10, Math.floor(quantity)));
       const itemId = `${product.id}_${chosenSize}_${chosenColour}`;
 

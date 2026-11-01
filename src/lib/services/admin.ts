@@ -1051,6 +1051,47 @@ export async function getAdminCustomizations(): Promise<CustomizationRequestItem
   return MEMORY_CUSTOMIZATIONS;
 }
 
+export async function createCustomizationRequest(data: {
+  customerName: string;
+  email: string;
+  phone: string;
+  category: string;
+  preferredColour?: string;
+  preferredFabric?: string;
+  occasion?: string;
+  measurements?: Record<string, string>;
+  designNotes: string;
+  referenceImages?: string[];
+  userId?: string;
+}): Promise<CustomizationRequestItem> {
+  const count = MEMORY_CUSTOMIZATIONS.length + 1;
+  const yearMonth = new Date().toISOString().slice(0, 7).replace("-", "");
+  const requestNumber = `CUST-${yearMonth}-${String(count).padStart(3, "0")}`;
+  const now = new Date().toISOString();
+
+  const newItem: CustomizationRequestItem = {
+    id: `cust_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    requestNumber,
+    userId: data.userId,
+    customerName: data.customerName,
+    email: data.email,
+    phone: data.phone,
+    category: data.category,
+    preferredColour: data.preferredColour,
+    preferredFabric: data.preferredFabric,
+    occasion: data.occasion,
+    measurements: data.measurements || {},
+    designNotes: data.designNotes,
+    referenceImages: data.referenceImages || [],
+    status: "new_enquiry",
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  MEMORY_CUSTOMIZATIONS.unshift(newItem);
+  return newItem;
+}
+
 export async function updateAdminCustomization(params: {
   id: string;
   status: CustomizationRequestItem["status"];

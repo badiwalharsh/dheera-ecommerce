@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { RazorpayService } from "@/lib/services/razorpay";
-import { getOrderForConfirmation } from "@/lib/services/orders";
+import { getInternalOrder } from "@/lib/services/orders";
 
 export async function POST(req: Request) {
   try {
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     }
 
     // Verify order exists
-    const { order } = await getOrderForConfirmation(orderNumber, null, null);
+    const order = await getInternalOrder(orderNumber);
     if (!order) {
       return NextResponse.json({ success: false, message: "Order not found." }, { status: 404 });
     }

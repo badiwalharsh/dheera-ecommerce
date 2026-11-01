@@ -70,17 +70,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   // Related products query (4 items)
   const relatedProducts = await getRelatedProducts(product.slug, product.categorySlug, 4);
 
-  // Structured Data (JSON-LD Product Schema)
+  // Structured Data (JSON-LD Product Schema & Breadcrumb Schema)
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dheera.in";
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    image: product.gallery,
-    description: product.description,
+    image: product.gallery && product.gallery.length > 0 ? product.gallery : [product.image],
+    description: product.shortDescription || product.description,
     sku: product.sku,
     category: product.category,
     offers: {
       "@type": "Offer",
+      url: `${baseUrl}/product/${product.slug}`,
       priceCurrency: "INR",
       price: product.price,
       availability: product.inStock
@@ -94,12 +97,47 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     },
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: baseUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Shop",
+        item: `${baseUrl}/shop`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: product.category,
+        item: `${baseUrl}/collections/${product.categorySlug}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        name: product.name,
+        item: `${baseUrl}/product/${product.slug}`,
+      },
+    ],
+  };
+
   return (
     <div className="py-8 sm:py-14">
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       <Container size="default">

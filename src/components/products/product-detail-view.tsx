@@ -75,14 +75,16 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   return (
     <div className="w-full overflow-x-hidden">
       {/* Development Fixture Banner */}
-      <div className="mb-6 p-3 bg-[#FAF9F5] border border-[#AA9160]/40 flex items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-2 text-[#315039]">
-          <Sparkles className="w-3.5 h-3.5 text-[#AA9160] flex-shrink-0" />
-          <span className="text-[10px] sm:text-[11px] uppercase tracking-luxury font-medium">
-            Development Catalogue Sample — Illustrative Specifications & Prototype Pricing
-          </span>
+      {product.isDevelopmentFixture && (
+        <div className="mb-6 p-3 bg-[#FAF9F5] border border-[#AA9160]/40 flex items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 text-[#315039]">
+            <Sparkles className="w-3.5 h-3.5 text-[#AA9160] flex-shrink-0" />
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-luxury font-medium">
+              Development Catalogue Sample — Illustrative Specifications & Prototype Pricing
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-14 items-start">
         {/* ================= LEFT COLUMN: PRODUCT GALLERY ================= */}
@@ -202,12 +204,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   {formatCurrencyINR(product.originalPrice)}
                 </span>
                 <span className="text-[9px] sm:text-[10px] uppercase tracking-luxury bg-[#176B45]/10 text-[#176B45] font-semibold px-2 py-0.5 border border-[#176B45]/20">
-                  Save {discountPercent}% (Sample)
+                  Save {discountPercent}%{product.isDevelopmentFixture ? " (Sample)" : ""}
                 </span>
               </>
             )}
             <span className="text-[9px] sm:text-[10px] text-[#74786F] block w-full pt-1">
-              Sample development price. Inclusive of illustrative taxes.
+              {product.isDevelopmentFixture
+                ? "Sample development price. Inclusive of illustrative taxes."
+                : "Price inclusive of all taxes. Free shipping on orders above ₹5,000."}
             </span>
           </div>
 
@@ -218,15 +222,15 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <span className="w-2 h-2 rounded-full bg-[#176B45] animate-pulse flex-shrink-0" />
                 <span className="font-medium uppercase tracking-wider text-[10px] sm:text-[11px] break-words">
                   {product.isReadyToShip
-                    ? "In Stock — Ready to Ship (Sample Estimate: 2–3 Days)"
-                    : "In Stock — Made to Order (Sample Estimate: 7–10 Days)"}
+                    ? `In Stock — Ready to Ship (${product.isDevelopmentFixture ? "Sample Estimate: " : ""}2–3 Days)`
+                    : `In Stock — Made to Order (${product.isDevelopmentFixture ? "Sample Estimate: " : ""}7–10 Days)`}
                 </span>
               </div>
             ) : (
               <div className="flex items-center gap-1.5 sm:gap-2 text-red-600">
                 <span className="w-2 h-2 rounded-full bg-red-600 flex-shrink-0" />
                 <span className="font-medium uppercase tracking-wider text-[10px] sm:text-[11px]">
-                  Sample Variant Unavailable in Selected Size
+                  Unavailable in Selected Variant
                 </span>
               </div>
             )}

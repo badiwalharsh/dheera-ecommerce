@@ -15,7 +15,9 @@ export function Newsletter({ heading, description }: NewsletterProps = {}) {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -25,9 +27,32 @@ export function Newsletter({ heading, description }: NewsletterProps = {}) {
       return;
     }
 
-    setStatus("success");
+    setIsSubmitting(true);
+    setStatus("idle");
     setErrorMessage("");
-    setEmail("");
+
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setStatus("success");
+        setEmail("");
+      } else {
+        setStatus("error");
+        setErrorMessage(data.error || "Unable to complete subscription. Please try again.");
+      }
+    } catch {
+      setStatus("error");
+      setErrorMessage("Network error occurred. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -72,9 +97,10 @@ export function Newsletter({ heading, description }: NewsletterProps = {}) {
                 />
                 <button
                   type="submit"
-                  className="w-full sm:w-auto bg-[#176B45] hover:bg-[#315039] text-[#FAF9F5] px-5 sm:px-6 py-2.5 sm:py-3 text-xs uppercase tracking-luxury font-medium transition-colors flex items-center justify-center gap-1.5 flex-shrink-0"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto bg-[#176B45] hover:bg-[#315039] text-[#FAF9F5] px-5 sm:px-6 py-2.5 sm:py-3 text-xs uppercase tracking-luxury font-medium transition-colors flex items-center justify-center gap-1.5 flex-shrink-0 disabled:opacity-50"
                 >
-                  <span>Subscribe</span>
+                  <span>{isSubmitting ? "Subscribing..." : "Subscribe"}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>

@@ -34,11 +34,25 @@ export class RazorpayService {
   }
 
   private static getKeySecret(): string {
-    return process.env.RAZORPAY_KEY_SECRET || "placeholder_secret";
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    if (secret) return secret;
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "CRITICAL SECURITY CONFIGURATION ERROR: RAZORPAY_KEY_SECRET must be configured in production."
+      );
+    }
+    return "placeholder_secret";
   }
 
   private static getWebhookSecret(): string {
-    return process.env.RAZORPAY_WEBHOOK_SECRET || "placeholder_webhook_secret";
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    if (secret) return secret;
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "CRITICAL SECURITY CONFIGURATION ERROR: RAZORPAY_WEBHOOK_SECRET must be configured in production."
+      );
+    }
+    return "placeholder_webhook_secret";
   }
 
   /**

@@ -28,15 +28,28 @@ const AUTHORIZED_ADMINS: AdminUser[] = [
 
 export { AUTHORIZED_ADMINS };
 
-const ADMIN_SECRET =
-  process.env.ADMIN_SESSION_SECRET ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "dheera-luxury-atelier-admin-hmac-secret-salt-2026";
+export function getAdminSecret(): string {
+  const secret =
+    process.env.ADMIN_AUTH_SECRET ||
+    process.env.ADMIN_SESSION_SECRET ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (secret) return secret;
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "CRITICAL SECURITY CONFIGURATION ERROR: ADMIN_AUTH_SECRET or ADMIN_SESSION_SECRET must be configured in production."
+    );
+  }
+
+  return "dheera-luxury-atelier-admin-hmac-secret-salt-2026";
+}
 
 /**
  * Cryptographically signs an administrative session payload using HMAC-SHA256
  */
 export function signAdminToken(user: AdminUser): string {
+  const adminSecret = getAdminSecret();
   const payload = JSON.stringify({
     id: user.id,
     email: user.email,
@@ -49,7 +62,7 @@ export function signAdminToken(user: AdminUser): string {
 
   const b64Payload = Buffer.from(payload).toString("base64url");
   const signature = crypto
-    .createHmac("sha256", ADMIN_SECRET)
+    .createHmac("sha256", adminSecret)
     .update(b64Payload)
     .digest("base64url");
 
@@ -62,12 +75,14 @@ export function signAdminToken(user: AdminUser): string {
 export function verifyAdminToken(token: string): AdminUser | null {
   if (!token || typeof token !== "string") return null;
 
+  const adminSecret = getAdminSecret();
+
   // 1. Signed HMAC-SHA256 format (<b64Payload>.<signature>)
   const parts = token.split(".");
   if (parts.length === 2) {
     const [b64Payload, sig] = parts;
     const expectedSig = crypto
-      .createHmac("sha256", ADMIN_SECRET)
+      .createHmac("sha256", adminSecret)
       .update(b64Payload)
       .digest("base64url");
 
@@ -190,7 +205,7 @@ export async function getAuthenticatedAdmin(
   // 3. Internal test bypass ONLY with matching secret key (Never raw unauthenticated headers)
   if (req && process.env.NODE_ENV !== "production") {
     const internalSecret = req.headers.get("x-dheera-internal-admin-key");
-    if (internalSecret && internalSecret === ADMIN_SECRET) {
+    if (internalSecret && internalSecret === getAdminSecret()) {
       const adminRole = req.headers.get("x-admin-role");
       const adminEmail = req.headers.get("x-admin-email");
       if (adminRole === "super_admin" || adminRole === "store_manager") {

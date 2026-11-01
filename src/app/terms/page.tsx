@@ -109,6 +109,11 @@ export default function TermsPage() {
             <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
               These Terms & Conditions are governed by and construed in accordance with the laws of India. Any legal disputes arising out of the use of this website or orders placed through it shall be subject to the exclusive jurisdiction of the competent courts in India.
             </p>
+            <div className="p-3 bg-[#EEEAE0]/60 border border-[#E2DFD6] text-[11px] font-mono text-[#74786F]">
+              <p>Corporate Entity: [Pending Final Business Incorporation]</p>
+              <p>GSTIN: [To be added upon GST registration]</p>
+              <p>Grievance Officer: care@dheera.in</p>
+            </div>
           </div>
 
           {/* Launch Status Notice */}

@@ -16,8 +16,8 @@ export const BRAND = {
   instagram: "@dheera_india",
   instagramUrl: "https://www.instagram.com/dheera_india/",
   contactEmail: "care@dheera.in",
-  contactPhone: "+91 (0) 800-DHEERA",
-  contactHours: "Monday to Saturday, 10:00 AM – 7:00 PM IST",
+  contactPhone: "[Customer Support Phone — To be confirmed by Business Owner]",
+  contactHours: "Monday to Saturday, 10:00 AM – 7:00 PM IST (Provisional)",
   officialLogoPath: "/images/brand/dheera-logo.png",
   announcementText: "FREE SHIPPING ON SELECTED ORDERS | MADE IN INDIA, FOR THE WORLD",
 } as const;

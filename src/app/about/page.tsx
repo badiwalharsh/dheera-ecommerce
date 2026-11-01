@@ -63,7 +63,7 @@ export default function AboutPage() {
                   Artisanal Heritage
                 </span>
                 <p className="font-serif text-xs sm:text-sm text-[#176B45]">
-                  Authentic Chanderi silk, handcrafted mulmul linings, and antique zari threadwork.
+                  Curated handloom inspirations, soft cotton linings, and delicate zari craftsmanship.
                 </p>
               </div>
             </div>
@@ -79,7 +79,7 @@ export default function AboutPage() {
               </h2>
 
               <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
-                In a world of fleeting fast fashion, DHEERA honours the patience of artisanal weaving. Every ensemble begins at the looms of generational craft clusters across India — where delicate hand-spun silks, gossamer Chanderis, and pure cotton mulmul are slowly brought to life by master weavers.
+                In a world of fleeting fast fashion, DHEERA honours the patience of artisanal craftsmanship. Our ensembles are inspired by the living heritage of craft clusters across India — where delicate silks, gossamer Chanderis, and breathable cotton mulmul are envisioned with contemporary grace.
               </p>
 
               <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
@@ -90,7 +90,7 @@ export default function AboutPage() {
                 <div className="space-y-1">
                   <h4 className="text-xs font-serif text-[#176B45] font-semibold flex items-center gap-1.5">
                     <Feather className="w-3.5 h-3.5 text-[#AA9160]" />
-                    <span>Pure Organic Weaves</span>
+                    <span>Breathable Natural Textiles</span>
                   </h4>
                   <p className="text-[11px] text-[#74786F]">
                     Breathable natural fibers that feel soothing against the skin in every Indian climate.
@@ -167,7 +167,7 @@ export default function AboutPage() {
               <span>Launch & Business Governance Notice</span>
             </div>
             <p className="text-xs text-[#74786F] leading-relaxed max-w-xl mx-auto">
-              DHEERA is currently in structured pre-launch testing. Official corporate registration coordinates, permanent studio addresses, and confirmed commercial certifications will be published upon final commercial activation.
+              DHEERA is currently in structured pre-launch testing. Textile inspirations, artisanal descriptions, and design philosophy reflect our creative vision. Specific artisan cluster partnerships, loom certifications, permanent studio coordinates, and corporate registration details will be published upon final commercial launch.
             </p>
             <div className="pt-1">
               <Link

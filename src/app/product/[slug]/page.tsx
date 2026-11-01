@@ -1,3 +1,4 @@
+
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -44,6 +45,15 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     alternates: {
       canonical: `/product/${product.slug}`,
     },
+    robots: product.isDevelopmentFixture
+      ? {
+          index: false,
+          follow: true,
+        }
+      : {
+          index: true,
+          follow: true,
+        },
     openGraph: {
       title,
       description,

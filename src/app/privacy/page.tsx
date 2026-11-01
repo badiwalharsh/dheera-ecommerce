@@ -83,11 +83,11 @@ export default function PrivacyPage() {
               <span>2. Payment Security & Zero Card Storage</span>
             </h2>
             <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
-              DHEERA adheres to strict payment security separation. All payment transactions are handled through our PCI-DSS Level 1 compliant gateway provider (Razorpay):
+              DHEERA implements privacy-first payment separation. Payment card and net banking processing is securely handled directly through our payment gateway provider (Razorpay), which maintains PCI-DSS Level 1 compliance:
             </p>
             <div className="p-4 bg-[#EEEAE0]/60 border-l-2 border-[#176B45] text-xs text-[#74786F] space-y-2">
               <p>
-                <strong>We NEVER store or process complete debit/credit card numbers, CVVs, expiry dates, or UPI PINs on DHEERA web servers or databases.</strong>
+                <strong>DHEERA NEVER receives, stores, or processes complete debit/credit card numbers, CVVs, expiry dates, or UPI PINs on its storefront servers or databases.</strong>
               </p>
               <p>
                 Payment callbacks are independently verified on our backend using cryptographic HMAC-SHA256 signatures before any order is marked confirmed.
@@ -105,7 +105,7 @@ export default function PrivacyPage() {
             </p>
             <ul className="space-y-2 text-xs text-[#74786F] pl-4 list-disc">
               <li>Processing, tailoring, packaging, and dispatching your garments.</li>
-              <li>Sharing delivery coordinates with verified courier partners (Blue Dart, Delhivery) for doorstep delivery.</li>
+              <li>Sharing delivery coordinates with contracted express courier partners for doorstep delivery.</li>
               <li>Providing real-time dispatch updates, tracking notifications, and order confirmations.</li>
               <li>Delivering our curated seasonal newsletter (strictly when opted in, with one-click unsubscribe).</li>
             </ul>
@@ -117,7 +117,7 @@ export default function PrivacyPage() {
               4. Cookies & Security Controls
             </h2>
             <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
-              We employ essential HTTP-only cookies and local storage tokens for shopping bag persistence, customer authentication sessions, and CSRF protection. We do not employ intrusive third-party cross-site behavioral tracking scripts.
+              We employ essential HTTP-only cookies and secure storage tokens for shopping bag persistence, customer authentication sessions, and CSRF protection. We do not employ third-party cross-site behavioral advertising trackers.
             </p>
           </div>
 
@@ -127,7 +127,7 @@ export default function PrivacyPage() {
               5. Your Rights & Account Deletion
             </h2>
             <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
-              Under applicable Indian and international data protection principles, patrons have the right to access, rectify, download, or request the permanent deletion of their customer profile and address book. Inquiries may be addressed to our Data Privacy Officer at <a href={`mailto:${BRAND.contactEmail}`} className="text-[#176B45] underline font-medium">{BRAND.contactEmail}</a>.
+              In accordance with applicable Indian data protection principles, patrons have the right to review, update, or request deletion of their customer profile and address book. Privacy requests and account deletion inquiries may be addressed to <a href={`mailto:${BRAND.contactEmail}`} className="text-[#176B45] underline font-medium">{BRAND.contactEmail}</a>.
             </p>
           </div>
 

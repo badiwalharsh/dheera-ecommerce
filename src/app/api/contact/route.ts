@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Thank you for reaching out. Our concierge will review your message and respond within 24 hours.",
+      message: "Thank you for reaching out. Your inquiry has been recorded in our concierge desk and our team will attend to it during business hours.",
       inquiryId: inquiry.id,
     });
   } catch (err: any) {

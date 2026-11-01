@@ -97,7 +97,7 @@ export default function ContactPage() {
                     >
                       {BRAND.contactEmail}
                     </a>
-                    <p className="text-[10px] text-[#74786F] mt-0.5">Average response within 24 hours</p>
+                    <p className="text-[10px] text-[#74786F] mt-0.5">Inquiries attended to during concierge business hours</p>
                   </div>
                 </div>
 
@@ -124,9 +124,9 @@ export default function ContactPage() {
                     <h3 className="text-xs uppercase tracking-luxury font-medium text-[#252A25]">
                       Telephone & WhatsApp
                     </h3>
-                    <p className="text-xs text-[#74786F]">{BRAND.contactPhone}</p>
+                    <p className="text-xs font-mono text-[#74786F]">{BRAND.contactPhone}</p>
                     <p className="text-[10px] text-[#AA9160] italic mt-0.5">
-                      * Toll-free and WhatsApp lines to be confirmed on public launch
+                      * Direct voice & WhatsApp lines pending business owner allocation
                     </p>
                   </div>
                 </div>
@@ -137,8 +137,10 @@ export default function ContactPage() {
                 <div className="flex items-start gap-2 text-xs text-[#74786F]">
                   <MapPin className="w-4 h-4 text-[#AA9160] flex-shrink-0 mt-0.5" />
                   <div>
-                    <strong className="text-[#252A25]">Atelier Location: </strong>
-                    <span>Crafted in India. Official physical boutique coordinates will be formally posted prior to commercial showroom opening.</span>
+                    <strong className="text-[#252A25]">Showroom Coordinates: </strong>
+                    <span className="font-mono text-[11px] text-[#74786F] block mt-0.5">
+                      [Pending Business Owner Input — Registered office & showroom location to be confirmed]
+                    </span>
                   </div>
                 </div>
               </div>

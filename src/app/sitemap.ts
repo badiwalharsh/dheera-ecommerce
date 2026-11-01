@@ -29,10 +29,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Public active products (excluding archived garments)
+  // Public active products (excluding archived garments and unverified development fixtures)
   const products = await getAllProducts();
   const productRoutes: MetadataRoute.Sitemap = products
-    .filter((p) => p.inStock !== false)
+    .filter((p) => p.inStock !== false && !p.isDevelopmentFixture)
     .map((product) => ({
       url: `${baseUrl}/product/${product.slug}`,
       lastModified: now,

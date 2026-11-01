@@ -122,7 +122,7 @@ function BespokeCustomForm() {
             <span className="text-xs font-serif text-[#AA9160] font-bold">03</span>
             <h3 className="font-serif text-base text-[#176B45]">Artisanal Handcrafting</h3>
             <p className="text-xs text-[#74786F]">
-              Our master karigars carefully hand-cut, tailor, and embroider your piece over 7–10 days.
+              Tailored and hand-finished with care (target timeline: approximately 7–10 business days).
             </p>
           </div>
 
@@ -130,7 +130,7 @@ function BespokeCustomForm() {
             <span className="text-xs font-serif text-[#AA9160] font-bold">04</span>
             <h3 className="font-serif text-base text-[#176B45]">Atelier Quality & Delivery</h3>
             <p className="text-xs text-[#74786F]">
-              Inspected, lovingly boxed in DHEERA heirloom packaging, and express delivered.
+              Inspected, carefully packaged in DHEERA heirloom boxes, and delivered via express courier.
             </p>
           </div>
         </div>

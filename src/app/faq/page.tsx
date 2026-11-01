@@ -43,12 +43,12 @@ const FAQ_SECTIONS: FAQSection[] = [
       {
         question: "What are the shipping charges across India?",
         answer:
-          "We offer complimentary express shipping on all domestic orders above ₹5,000. For orders below this threshold, a flat nominal shipping fee of ₹150 applies at checkout.",
+          "Under our provisional pre-launch parameters, we offer complimentary express shipping on all domestic orders above ₹5,000 (with a nominal flat ₹150 fee below ₹5,000). Final thresholds and rates will be formally confirmed prior to public launch.",
       },
       {
         question: "What is the expected delivery timeline?",
         answer:
-          "Ready-to-Ship garments are typically dispatched within 2–3 business days. Made-to-Order and custom-tailored ensembles require 7–10 business days for bespoke craftsmanship before dispatch. Once dispatched, domestic express transit takes 2–4 business days.",
+          "Ready-to-Ship garments have a target dispatch window of 2–3 business days. Made-to-Order and custom-tailored ensembles require approximately 7–10 business days for bespoke craftsmanship before dispatch. Transit times typically range from 2–4 business days.",
       },
       {
         question: "How can I track my order?",
@@ -103,7 +103,7 @@ const FAQ_SECTIONS: FAQSection[] = [
       {
         question: "What is DHEERA's return and size exchange policy?",
         answer:
-          "We offer complimentary size exchanges within 7 days of delivery for standard catalog garments in unworn, unwashed condition with all original security tags intact. Please contact care@dheera.in to initiate an exchange.",
+          "Standard catalog garments are planned for a 7-day complimentary size exchange for unworn, unwashed items with all original security tags intact. Final commercial return and exchange terms will be confirmed by the business owner upon public store activation.",
       },
       {
         question: "Are custom-tailored or bespoke orders returnable?",

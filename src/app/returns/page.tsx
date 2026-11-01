@@ -36,30 +36,30 @@ export default function ReturnsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-5 bg-[#EEEAE0]/70 border border-[#E2DFD6] space-y-2 text-center">
               <RefreshCw className="w-6 h-6 text-[#176B45] mx-auto" />
-              <h3 className="font-serif text-base text-[#176B45]">7-Day Size Exchange</h3>
-              <p className="text-xs text-[#74786F]">From the date of documented parcel delivery</p>
+              <h3 className="font-serif text-base text-[#176B45]">7-Day Size Exchange*</h3>
+              <p className="text-xs text-[#74786F]">Provisional policy from parcel delivery date</p>
             </div>
 
             <div className="p-5 bg-[#EEEAE0]/70 border border-[#E2DFD6] space-y-2 text-center">
               <CheckCircle2 className="w-6 h-6 text-[#176B45] mx-auto" />
               <h3 className="font-serif text-base text-[#176B45]">Unworn Condition</h3>
-              <p className="text-xs text-[#74786F]">With original security tags & packaging intact</p>
+              <p className="text-xs text-[#74786F]">With original tags & packaging intact</p>
             </div>
 
             <div className="p-5 bg-[#EEEAE0]/70 border border-[#E2DFD6] space-y-2 text-center">
               <Sparkles className="w-6 h-6 text-[#176B45] mx-auto" />
               <h3 className="font-serif text-base text-[#176B45]">Alteration Support</h3>
-              <p className="text-xs text-[#74786F]">Bespoke atelier fit adjustments</p>
+              <p className="text-xs text-[#74786F]">Bespoke atelier fit consultation</p>
             </div>
           </div>
 
           {/* Section 1: Standard Catalog Garment Size Exchange */}
           <div className="p-6 sm:p-8 bg-[#FAF9F5] border border-[#E2DFD6] space-y-4">
             <h2 className="font-serif text-xl sm:text-2xl text-[#176B45]">
-              1. Size Exchange Eligibility
+              1. Size Exchange Eligibility (Provisional Guidelines)
             </h2>
             <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
-              Standard catalog garments ordered from DHEERA (such as standard XS through XXL kurta sets and suits) are eligible for a one-time complimentary size exchange within <strong>7 calendar days</strong> of parcel delivery, provided:
+              Standard catalog garments ordered from DHEERA (such as standard XS through XXL kurta sets and suits) are provisionally planned for a one-time complimentary size exchange within <strong>7 calendar days</strong> of parcel delivery (subject to final merchant policy confirmation upon commercial launch), provided:
             </p>
             <ul className="space-y-2 text-xs text-[#74786F] pl-4 list-disc">
               <li>The garment is completely unworn, unwashed, unaltered, and free of perfume or stains.</li>

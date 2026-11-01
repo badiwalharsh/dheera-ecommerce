@@ -37,19 +37,19 @@ export default function ShippingPage() {
             <div className="p-5 bg-[#EEEAE0]/70 border border-[#E2DFD6] space-y-2 text-center">
               <Truck className="w-6 h-6 text-[#176B45] mx-auto" />
               <h3 className="font-serif text-base text-[#176B45]">Complimentary Shipping</h3>
-              <p className="text-xs text-[#74786F]">On all pan-India orders above ₹5,000</p>
+              <p className="text-xs text-[#74786F]">Provisional on domestic orders above ₹5,000*</p>
             </div>
 
             <div className="p-5 bg-[#EEEAE0]/70 border border-[#E2DFD6] space-y-2 text-center">
               <Clock className="w-6 h-6 text-[#176B45] mx-auto" />
               <h3 className="font-serif text-base text-[#176B45]">Ready to Ship</h3>
-              <p className="text-xs text-[#74786F]">Dispatched within 2–3 business days</p>
+              <p className="text-xs text-[#74786F]">Target dispatch in 2–3 business days*</p>
             </div>
 
             <div className="p-5 bg-[#EEEAE0]/70 border border-[#E2DFD6] space-y-2 text-center">
               <ShieldCheck className="w-6 h-6 text-[#176B45] mx-auto" />
               <h3 className="font-serif text-base text-[#176B45]">Insured Transit</h3>
-              <p className="text-xs text-[#74786F]">Tamper-evident luxury packaging</p>
+              <p className="text-xs text-[#74786F]">Tamper-evident packaging standards</p>
             </div>
           </div>
 
@@ -59,20 +59,20 @@ export default function ShippingPage() {
               1. Domestic Shipping Timelines
             </h2>
             <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
-              Every DHEERA piece is carefully hand-finished, inspected for zari precision, and pressed before leaving our workshop. Dispatch and transit times vary based on whether your garment is ready-to-ship or tailored made-to-order:
+              Every DHEERA piece is hand-finished, inspected for zari precision, and pressed before leaving our workshop. Dispatch and transit times vary based on whether your garment is ready-to-ship or tailored made-to-order:
             </p>
             <ul className="space-y-2.5 text-xs text-[#74786F] pl-4 list-disc">
               <li>
                 <strong className="text-[#252A25]">Ready-to-Ship Pieces: </strong>
-                Dispatched from our facility within 2–3 business days following payment confirmation.
+                Estimated dispatch within 2–3 business days following payment confirmation (subject to workshop volume).
               </li>
               <li>
                 <strong className="text-[#252A25]">Made-to-Order & Customised Ensembles: </strong>
-                Require 7–10 working days of artisanal tailoring before dispatch.
+                Require approximately 7–10 working days of tailoring and hand-finishing before dispatch.
               </li>
               <li>
                 <strong className="text-[#252A25]">Estimated Transit Time: </strong>
-                Express courier transit takes approximately 2–4 business days depending on delivery PIN code.
+                Express courier transit typically takes 2–4 business days depending on destination PIN code.
               </li>
             </ul>
           </div>
@@ -93,27 +93,30 @@ export default function ShippingPage() {
                 </thead>
                 <tbody className="divide-y divide-[#E2DFD6] text-[#74786F]">
                   <tr>
-                    <td className="p-3 font-medium text-[#252A25]">Orders Above ₹5,000</td>
+                    <td className="p-3 font-medium text-[#252A25]">Orders Above ₹5,000*</td>
                     <td className="p-3">Pan-India Express Air</td>
-                    <td className="p-3 font-semibold text-[#176B45]">FREE (Complimentary)</td>
+                    <td className="p-3 font-semibold text-[#176B45]">FREE (Provisional Complimentary)</td>
                   </tr>
                   <tr>
-                    <td className="p-3 font-medium text-[#252A25]">Orders Below ₹5,000</td>
+                    <td className="p-3 font-medium text-[#252A25]">Orders Below ₹5,000*</td>
                     <td className="p-3">Pan-India Standard Air</td>
-                    <td className="p-3 font-medium text-[#252A25]">₹150 Flat Fee</td>
+                    <td className="p-3 font-medium text-[#252A25]">₹150 Flat Fee (Provisional Baseline)</td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <p className="text-[10px] text-[#AA9160] italic">
+              * Note: Free-shipping threshold and standard shipping rates represent pre-launch operational defaults subject to final merchant confirmation.
+            </p>
           </div>
 
           {/* Section 3: Order Tracking & Courier Partners */}
           <div className="p-6 sm:p-8 bg-[#FAF9F5] border border-[#E2DFD6] space-y-4">
             <h2 className="font-serif text-xl sm:text-2xl text-[#176B45]">
-              3. Courier Partners & Real-Time Tracking
+              3. Courier Logistics & Order Tracking
             </h2>
             <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
-              We partner with premier logistics carriers (including Blue Dart Express and Delhivery) to guarantee secure transit. As soon as your parcel is handed over to the courier, an SMS and email notification with an unguessable tracking link will be transmitted to you.
+              We partner with recognized domestic courier carriers to ensure secure parcel delivery. As soon as your parcel is handed over to the courier partner, an email notification with an unguessable tracking link is issued. (Specific contracted carrier partner selections will be formally announced upon launch).
             </p>
             <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
               Registered patrons can also follow their parcel across our 6-stage atelier timeline: <em>Placed ➔ Confirmed ➔ Processing ➔ Dispatched ➔ In Transit ➔ Delivered</em>.
@@ -127,7 +130,7 @@ export default function ShippingPage() {
               <span>4. Worldwide International Shipping</span>
             </h2>
             <p className="text-xs sm:text-sm text-[#74786F] leading-relaxed">
-              We proudly ship handcrafted Indian heritage ensembles to patrons across North America, the United Kingdom, Europe, the Middle East, Southeast Asia, and Australia. International shipments are coordinated via DHL Express or FedEx International Priority.
+              We ship handcrafted Indian heritage ensembles to patrons globally. International consignments are arranged with premier express courier networks.
             </p>
             <p className="text-xs text-[#74786F] leading-relaxed">
               <strong className="text-[#252A25]">Customs & Import Duties: </strong>

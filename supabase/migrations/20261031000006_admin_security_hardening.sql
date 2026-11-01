@@ -39,48 +39,53 @@ GRANT EXECUTE ON FUNCTION public.is_super_admin() TO authenticated;
 -- 4. STORAGE BUCKET RLS POLICIES FOR PRODUCTS AND CUSTOMIZATIONS
 -- Products bucket: Public read, Admin write
 DO $$ BEGIN
+  DROP POLICY IF EXISTS "Public read product images" ON storage.objects;
   CREATE POLICY "Public read product images" ON storage.objects
     FOR SELECT
-    USING (bucket_id = 'products');
-EXCEPTION WHEN duplicate_object THEN NULL;
+    USING (bucket_id IN ('product-images', 'products'));
+EXCEPTION WHEN undefined_table THEN NULL;
 END $$;
 
 DO $$ BEGIN
+  DROP POLICY IF EXISTS "Admins upload product images" ON storage.objects;
   CREATE POLICY "Admins upload product images" ON storage.objects
     FOR INSERT
     TO authenticated
-    WITH CHECK (bucket_id = 'products' AND public.is_admin());
-EXCEPTION WHEN duplicate_object THEN NULL;
+    WITH CHECK (bucket_id IN ('product-images', 'products') AND public.is_admin());
+EXCEPTION WHEN undefined_table THEN NULL;
 END $$;
 
 DO $$ BEGIN
+  DROP POLICY IF EXISTS "Admins delete product images" ON storage.objects;
   CREATE POLICY "Admins delete product images" ON storage.objects
     FOR DELETE
     TO authenticated
-    USING (bucket_id = 'products' AND public.is_admin());
-EXCEPTION WHEN duplicate_object THEN NULL;
+    USING (bucket_id IN ('product-images', 'products') AND public.is_admin());
+EXCEPTION WHEN undefined_table THEN NULL;
 END $$;
 
 -- Customizations bucket: Private (Patron owner or Admin only)
 DO $$ BEGIN
+  DROP POLICY IF EXISTS "Patron or admin read customizations" ON storage.objects;
   CREATE POLICY "Patron or admin read customizations" ON storage.objects
     FOR SELECT
     TO authenticated
     USING (
-      bucket_id = 'customizations' AND
+      bucket_id IN ('customization-attachments', 'customizations') AND
       (auth.uid() = owner OR public.is_admin())
     );
-EXCEPTION WHEN duplicate_object THEN NULL;
+EXCEPTION WHEN undefined_table THEN NULL;
 END $$;
 
 DO $$ BEGIN
+  DROP POLICY IF EXISTS "Patron or admin upload customizations" ON storage.objects;
   CREATE POLICY "Patron or admin upload customizations" ON storage.objects
     FOR INSERT
     TO authenticated
     WITH CHECK (
-      bucket_id = 'customizations' AND
+      bucket_id IN ('customization-attachments', 'customizations') AND
       (auth.uid() = owner OR public.is_admin())
     );
-EXCEPTION WHEN duplicate_object THEN NULL;
+EXCEPTION WHEN undefined_table THEN NULL;
 END $$;
 

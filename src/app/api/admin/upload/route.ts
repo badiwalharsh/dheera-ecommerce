@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, logAdminAction } from "@/lib/security/admin-guard";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClientServer } from "@/lib/supabase/server";
+import { CANONICAL_PUBLIC_BUCKET, STORAGE_BUCKETS } from "@/lib/constants/storage";
 import crypto from "crypto";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
@@ -58,25 +59,36 @@ export async function POST(req: NextRequest) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        const { data, error } = await supabase.storage.from("products").upload(filename, buffer, {
+        // Try canonical bucket first, fallback to legacy bucket if needed
+        let targetBucket: string = CANONICAL_PUBLIC_BUCKET;
+        let uploadResult = await supabase.storage.from(targetBucket).upload(filename, buffer, {
           contentType: file.type,
           upsert: true,
         });
 
-        if (!error && data) {
-          const { data: publicData } = supabase.storage.from("products").getPublicUrl(filename);
+        if (uploadResult.error && targetBucket !== STORAGE_BUCKETS.LEGACY_PRODUCTS) {
+          targetBucket = STORAGE_BUCKETS.LEGACY_PRODUCTS;
+          uploadResult = await supabase.storage.from(targetBucket).upload(filename, buffer, {
+            contentType: file.type,
+            upsert: true,
+          });
+        }
+
+        if (!uploadResult.error && uploadResult.data) {
+          const { data: publicData } = supabase.storage.from(targetBucket).getPublicUrl(filename);
           await logAdminAction({
             admin: authResult.admin,
             action: "file_upload",
             targetType: "storage",
             targetId: filename,
-            details: { size: file.size, type: file.type },
+            details: { size: file.size, type: file.type, bucket: targetBucket },
           });
 
           return NextResponse.json({
             success: true,
             url: publicData.publicUrl,
             filename,
+            bucket: targetBucket,
             message: "Photograph uploaded to Supabase Storage successfully.",
           });
         }

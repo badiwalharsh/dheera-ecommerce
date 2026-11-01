@@ -31,13 +31,30 @@ function loadEnvFile(filePath) {
   return result;
 }
 
+function isEmpty(val) {
+  return !val || typeof val !== "string" || val.trim().length === 0;
+}
+
+function isPlaceholder(val) {
+  if (isEmpty(val)) return false;
+  const lower = val.toLowerCase().trim();
+  return (
+    lower.includes("placeholder") ||
+    lower.includes("your_") ||
+    lower.includes("changeme") ||
+    lower.includes("todo") ||
+    lower.includes("example") ||
+    lower === "xxx"
+  );
+}
+
 function validateConfig(env = process.env) {
   const issues = [];
   const isProd = env.NODE_ENV === "production";
 
   // 1. App URL
   const appUrl = env.NEXT_PUBLIC_APP_URL;
-  if (!appUrl) {
+  if (isEmpty(appUrl)) {
     issues.push({
       code: "MISSING_APP_URL",
       severity: "error",
@@ -60,39 +77,39 @@ function validateConfig(env = process.env) {
   const sbAnon = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const sbService = env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!sbUrl || sbUrl.includes("placeholder")) {
+  if (isEmpty(sbUrl) || isPlaceholder(sbUrl)) {
     issues.push({
-      code: !sbUrl ? "MISSING_SUPABASE_URL" : "PLACEHOLDER_SUPABASE_URL",
+      code: isEmpty(sbUrl) ? "MISSING_SUPABASE_URL" : "PLACEHOLDER_SUPABASE_URL",
       severity: isProd ? "error" : "warning",
       variable: "NEXT_PUBLIC_SUPABASE_URL",
-      message: !sbUrl ? "Missing Supabase URL." : "Contains placeholder URL.",
+      message: isEmpty(sbUrl) ? "Missing Supabase URL." : "Contains placeholder URL.",
       remediation: "Configure genuine production Supabase project URL (https://<project>.supabase.co)",
     });
   }
 
-  if (!sbAnon || sbAnon.includes("placeholder")) {
+  if (isEmpty(sbAnon) || isPlaceholder(sbAnon)) {
     issues.push({
-      code: !sbAnon ? "MISSING_SUPABASE_ANON_KEY" : "PLACEHOLDER_SUPABASE_ANON_KEY",
+      code: isEmpty(sbAnon) ? "MISSING_SUPABASE_ANON_KEY" : "PLACEHOLDER_SUPABASE_ANON_KEY",
       severity: isProd ? "error" : "warning",
       variable: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-      message: !sbAnon ? "Missing Supabase anon key." : "Contains placeholder anon key.",
+      message: isEmpty(sbAnon) ? "Missing Supabase anon key." : "Contains placeholder anon key.",
       remediation: "Set production Supabase anon key.",
     });
   }
 
-  if (!sbService || sbService.includes("placeholder")) {
+  if (isEmpty(sbService) || isPlaceholder(sbService)) {
     issues.push({
-      code: !sbService ? "MISSING_SERVICE_ROLE_KEY" : "PLACEHOLDER_SERVICE_ROLE_KEY",
+      code: isEmpty(sbService) ? "MISSING_SERVICE_ROLE_KEY" : "PLACEHOLDER_SERVICE_ROLE_KEY",
       severity: isProd ? "error" : "warning",
       variable: "SUPABASE_SERVICE_ROLE_KEY",
-      message: !sbService ? "Missing Supabase service-role key." : "Contains placeholder service key.",
+      message: isEmpty(sbService) ? "Missing Supabase service-role key." : "Contains placeholder service key.",
       remediation: "Set server-only production SUPABASE_SERVICE_ROLE_KEY.",
     });
   }
 
   // 3. Admin Secret
   const adminSecret = env.ADMIN_AUTH_SECRET || env.ADMIN_SESSION_SECRET;
-  if (!adminSecret) {
+  if (isEmpty(adminSecret)) {
     issues.push({
       code: "MISSING_ADMIN_AUTH_SECRET",
       severity: isProd ? "error" : "warning",
@@ -101,7 +118,7 @@ function validateConfig(env = process.env) {
       remediation: "Generate a 64-char hex secret (e.g., openssl rand -hex 32) and set ADMIN_AUTH_SECRET.",
     });
   } else {
-    if (adminSecret.length < 32) {
+    if (adminSecret.trim().length < 32) {
       issues.push({
         code: "WEAK_ADMIN_SECRET",
         severity: "error",
@@ -110,12 +127,15 @@ function validateConfig(env = process.env) {
         remediation: "Provide a 64-character high-entropy secret.",
       });
     }
-    if (adminSecret === "dheera-luxury-atelier-admin-hmac-secret-salt-2026") {
+    if (
+      isPlaceholder(adminSecret) ||
+      adminSecret.trim() === "dheera-luxury-atelier-admin-hmac-secret-salt-2026"
+    ) {
       issues.push({
         code: "UNSAFE_ADMIN_SECRET",
         severity: isProd ? "error" : "warning",
         variable: "ADMIN_AUTH_SECRET",
-        message: "Using default development HMAC salt.",
+        message: "Using default development or placeholder HMAC salt.",
         remediation: "Generate a unique production secret key before deploying.",
       });
     }
@@ -123,10 +143,11 @@ function validateConfig(env = process.env) {
 
   // 4. Payment Gateway (Razorpay)
   const rzpKey = env.RAZORPAY_KEY_ID || env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+  const publicRzpKey = env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
   const rzpSecret = env.RAZORPAY_KEY_SECRET;
   const rzpWebhook = env.RAZORPAY_WEBHOOK_SECRET;
 
-  if (!rzpKey) {
+  if (isEmpty(rzpKey)) {
     issues.push({
       code: "MISSING_RAZORPAY_KEY_ID",
       severity: "error",
@@ -144,22 +165,41 @@ function validateConfig(env = process.env) {
     });
   }
 
-  if (!rzpSecret || rzpSecret === "placeholder_secret") {
+  // Key pairing consistency
+  if (!isEmpty(env.RAZORPAY_KEY_ID) && !isEmpty(publicRzpKey) && env.RAZORPAY_KEY_ID !== publicRzpKey) {
     issues.push({
-      code: "MISSING_RAZORPAY_KEY_SECRET",
-      severity: isProd ? "error" : "warning",
-      variable: "RAZORPAY_KEY_SECRET",
-      message: !rzpSecret ? "Missing Razorpay Key Secret." : "Contains placeholder secret.",
-      remediation: "Set production RAZORPAY_KEY_SECRET as server-only variable.",
+      code: "RAZORPAY_KEY_MISMATCH",
+      severity: "error",
+      variable: "RAZORPAY_KEY_ID",
+      message: "Server RAZORPAY_KEY_ID does not match client NEXT_PUBLIC_RAZORPAY_KEY_ID.",
+      remediation: "Ensure both server and client Razorpay key IDs match exactly.",
     });
   }
 
-  if (!rzpWebhook || rzpWebhook === "placeholder_webhook_secret") {
+  if (isEmpty(rzpSecret) || isPlaceholder(rzpSecret)) {
     issues.push({
-      code: "MISSING_WEBHOOK_SECRET",
+      code: isEmpty(rzpSecret) ? "MISSING_RAZORPAY_KEY_SECRET" : "PLACEHOLDER_RAZORPAY_KEY_SECRET",
+      severity: isProd ? "error" : "warning",
+      variable: "RAZORPAY_KEY_SECRET",
+      message: isEmpty(rzpSecret) ? "Missing Razorpay Key Secret." : "Contains placeholder secret.",
+      remediation: "Set production RAZORPAY_KEY_SECRET as server-only variable.",
+    });
+  } else if (!isEmpty(rzpKey) && rzpKey.startsWith("rzp_live_") && (rzpSecret.toLowerCase().includes("test") || rzpSecret.startsWith("test_"))) {
+    issues.push({
+      code: "RAZORPAY_KEY_SECRET_MISMATCH",
+      severity: "error",
+      variable: "RAZORPAY_KEY_SECRET",
+      message: "Live Razorpay Key ID is paired with a test Key Secret.",
+      remediation: "Provide the corresponding live Key Secret from Razorpay Dashboard.",
+    });
+  }
+
+  if (isEmpty(rzpWebhook) || isPlaceholder(rzpWebhook)) {
+    issues.push({
+      code: isEmpty(rzpWebhook) ? "MISSING_WEBHOOK_SECRET" : "PLACEHOLDER_WEBHOOK_SECRET",
       severity: isProd ? "error" : "warning",
       variable: "RAZORPAY_WEBHOOK_SECRET",
-      message: !rzpWebhook ? "Missing Razorpay Webhook Secret." : "Contains placeholder webhook secret.",
+      message: isEmpty(rzpWebhook) ? "Missing Razorpay Webhook Secret." : "Contains placeholder webhook secret.",
       remediation: "Configure RAZORPAY_WEBHOOK_SECRET to match webhook configuration.",
     });
   }
@@ -181,7 +221,9 @@ function validateConfig(env = process.env) {
   }
 
   // 6. Email Provider
-  if (!env.RESEND_API_KEY && !env.SMTP_HOST) {
+  const resendKey = env.RESEND_API_KEY;
+  const smtpHost = env.SMTP_HOST;
+  if ((isEmpty(resendKey) || isPlaceholder(resendKey)) && (isEmpty(smtpHost) || isPlaceholder(smtpHost))) {
     issues.push({
       code: "MISSING_EMAIL_PROVIDER",
       severity: "warning",

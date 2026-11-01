@@ -237,6 +237,17 @@ CREATE POLICY "Admins manage store settings" ON public.store_settings
 
 -- 11. STORAGE BUCKET CONFIGURATION (Conditional)
 DO $$ BEGIN
+  -- Canonical public product images bucket
+  INSERT INTO storage.buckets (id, name, public)
+  VALUES ('product-images', 'product-images', true)
+  ON CONFLICT (id) DO NOTHING;
+
+  -- Canonical private atelier customization attachments bucket
+  INSERT INTO storage.buckets (id, name, public)
+  VALUES ('customization-attachments', 'customization-attachments', false)
+  ON CONFLICT (id) DO NOTHING;
+
+  -- Backward-compatibility aliases for legacy development fixtures
   INSERT INTO storage.buckets (id, name, public)
   VALUES ('products', 'products', true)
   ON CONFLICT (id) DO NOTHING;

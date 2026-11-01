@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClientServer } from "@/lib/supabase/server";
+import { EmailService } from "@/lib/services/email";
 
 interface ContactMessage {
   id: string;
@@ -77,6 +78,19 @@ export async function POST(req: NextRequest) {
     }
 
     IN_MEMORY_CONTACT_INQUIRIES.push(inquiry);
+
+    // Queue / dispatch contact confirmation
+    await EmailService.send({
+      type: "contact_inquiry",
+      to: { email: inquiry.email, name: inquiry.fullName },
+      subject: `DHEERA Concierge — We Received Your Enquiry (${inquiry.id})`,
+      data: {
+        inquiryId: inquiry.id,
+        fullName: inquiry.fullName,
+        subject: inquiry.subject,
+      },
+      idempotencyKey: `contact_${inquiry.id}`,
+    });
 
     return NextResponse.json({
       success: true,

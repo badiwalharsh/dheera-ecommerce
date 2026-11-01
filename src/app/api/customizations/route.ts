@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCustomizationRequest } from "@/lib/services/admin";
+import { EmailService } from "@/lib/services/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,6 +68,19 @@ export async function POST(req: NextRequest) {
       designNotes: designNotes.trim(),
       referenceImages,
       userId,
+    });
+
+    // Queue / dispatch customization acknowledgement
+    await EmailService.send({
+      type: "customization_inquiry",
+      to: { email: cleanEmail, name: customerName.trim() },
+      subject: `DHEERA Atelier — Bespoke Consultation #${item.requestNumber} Received`,
+      data: {
+        requestNumber: item.requestNumber,
+        category: item.category,
+        customerName: item.customerName,
+      },
+      idempotencyKey: `customization_${item.requestNumber}`,
     });
 
     return NextResponse.json({

@@ -10,6 +10,9 @@
     "typecheck": "tsc --noEmit",
     "validate:prod": "node scripts/validate-production-config.js"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.46.1",

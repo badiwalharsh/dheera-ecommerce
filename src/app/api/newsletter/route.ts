@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClientServer } from "@/lib/supabase/server";
+import { EmailService } from "@/lib/services/email";
 
 // Fallback in-memory subscribers store
 const IN_MEMORY_SUBSCRIBERS = new Set<string>();
@@ -40,6 +41,18 @@ export async function POST(req: NextRequest) {
     }
 
     IN_MEMORY_SUBSCRIBERS.add(cleanEmail);
+
+    // Queue / dispatch welcome notification
+    await EmailService.send({
+      type: "newsletter_welcome",
+      to: cleanEmail,
+      subject: "Welcome to DHEERA — Indian Heritage, Contemporary Soul",
+      data: {
+        email: cleanEmail,
+        subscribedAt: new Date().toISOString(),
+      },
+      idempotencyKey: `newsletter_${cleanEmail}`,
+    });
 
     return NextResponse.json({
       success: true,

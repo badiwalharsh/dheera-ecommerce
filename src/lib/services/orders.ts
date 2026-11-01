@@ -8,6 +8,7 @@ import {
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClientServer } from "@/lib/supabase/server";
 import { ValidatedItem, deductInventoryAtomic } from "./inventory-and-pricing";
+import { EmailService } from "./email";
 import crypto from "crypto";
 
 // Fallback in-memory order repository for test/offline resilience
@@ -286,6 +287,28 @@ export async function confirmOrderPayment(
     order.payment.gatewayPaymentId = gatewayPaymentId;
     MEMORY_ORDERS.set(order.id, order);
     MEMORY_ORDERS.set(order.orderNumber, order);
+
+    // Trigger transactional order & payment confirmation receipt (durable queue / dispatch)
+    if (order.customerInfo?.email) {
+      EmailService.send({
+        type: "order_confirmation",
+        to: {
+          email: order.customerInfo.email,
+          name: order.customerInfo.fullName || undefined,
+        },
+        subject: `Your DHEERA Order #${order.orderNumber} is Confirmed`,
+        data: {
+          orderNumber: order.orderNumber,
+          total: order.pricing.totalAmount || order.pricing.total || 0,
+          itemsCount: order.items.length,
+          paymentId: gatewayPaymentId,
+        },
+        idempotencyKey: `order_receipt_${order.orderNumber}`,
+      }).catch((err) => {
+        console.error("[confirmOrderPayment] Non-blocking receipt dispatch warning:", err.message);
+      });
+    }
+
     return order;
   }
 

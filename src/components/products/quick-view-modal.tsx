@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/ui/product-image";
 import { useShop } from "@/context/shop-context";
 import { formatCurrencyINR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -41,15 +41,16 @@ export function QuickViewModal() {
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Product Image */}
             <div className="relative aspect-[3/4] md:h-full bg-[#EEEAE0]">
-              <Image
+              <ProductImage
                 src={quickViewProduct.image}
                 alt={quickViewProduct.name}
-                fill
-                className="object-cover"
+                aspectRatio="portrait"
+                priority
+                quality={88}
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
               {quickViewProduct.tag && (
-                <div className="absolute top-4 left-4">
+                <div className="absolute top-4 left-4 z-10 pointer-events-none">
                   <Badge variant="default">{quickViewProduct.tag}</Badge>
                 </div>
               )}

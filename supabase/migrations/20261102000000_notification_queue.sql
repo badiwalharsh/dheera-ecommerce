@@ -80,3 +80,4 @@ $$;
 
 REVOKE EXECUTE ON FUNCTION public.claim_queued_notifications(TEXT, INT, INT) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.claim_queued_notifications(TEXT, INT, INT) TO service_role;
+

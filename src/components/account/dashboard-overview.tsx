@@ -249,7 +249,7 @@ export function DashboardOverview() {
                     {ord.itemsPreview.slice(0, 4).map((item) => (
                       <div
                         key={item.id}
-                        className="relative w-14 h-16 sm:w-16 sm:h-20 bg-[#EEEAE0] border border-[#E2DFD6] rounded-sm overflow-hidden flex-shrink-0"
+                        className="relative w-14 aspect-[3/4] sm:w-16 bg-[#EEEAE0] border border-[#E2DFD6] rounded-sm overflow-hidden flex-shrink-0"
                       >
                         <Image
                           src={item.image}

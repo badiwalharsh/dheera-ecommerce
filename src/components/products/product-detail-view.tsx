@@ -1,26 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { CatalogProduct } from "@/types/ecommerce";
 import { formatCurrencyINR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useShop } from "@/context/shop-context";
 import { SizeGuideModal } from "@/components/products/size-guide-modal";
+import { ProductGallery } from "@/components/products/product-gallery";
 import {
   Heart,
   ShoppingBag,
   Ruler,
   ChevronDown,
   ChevronUp,
-  Maximize2,
-  X,
-  Truck,
   Sparkles,
   ShieldCheck,
-  ChevronLeft,
-  ChevronRight,
+  Truck,
 } from "lucide-react";
 
 interface ProductDetailViewProps {
@@ -31,13 +27,11 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const { isInWishlist, toggleWishlist, addToBag } = useShop();
 
   // Selected Variant State
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0] || "Standard");
   const [selectedColor, setSelectedColor] = useState<string>(product.colors[0] || "Natural");
   const [quantity, setQuantity] = useState(1);
 
-  // Modals & Gallery Zoom
-  const [isZoomModalOpen, setIsZoomModalOpen] = useState(false);
+  // Modals
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
   // Accordion Sections State
@@ -55,7 +49,6 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
   const isFavorited = isInWishlist(product.id);
   const galleryImages = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image];
-  const activeImage = galleryImages[activeImageIndex] || product.image;
 
   // Selected variant inventory check
   const matchedVariant = product.variants.find(
@@ -88,91 +81,12 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-14 items-start">
         {/* ================= LEFT COLUMN: PRODUCT GALLERY ================= */}
-        <div className="lg:col-span-7 space-y-3 sm:space-y-4 w-full">
-          {/* Main Large Visual Viewport */}
-          <div className="relative w-full aspect-[3/4] bg-[#EEEAE0] border border-[#E2DFD6] overflow-hidden group">
-            <Image
-              src={activeImage}
-              alt={`${product.name} - View ${activeImageIndex + 1}`}
-              fill
-              priority
-              loading="eager"
-              className="object-cover object-center transition-all duration-500"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 55vw"
-            />
-
-            {/* Product Tag / Badge */}
-            {product.tag && (
-              <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
-                <Badge variant="default" className="text-[8px] sm:text-[9px] px-2 py-0.5">
-                  {product.tag}
-                </Badge>
-              </div>
-            )}
-
-            {/* Enlarge / Zoom Button */}
-            <button
-              type="button"
-              onClick={() => setIsZoomModalOpen(true)}
-              className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10 p-2 sm:p-2.5 bg-[#FAF9F5]/90 hover:bg-[#FAF9F5] text-[#252A25] hover:text-[#176B45] border border-[#E2DFD6] shadow-sm transition-colors"
-              aria-label="Enlarge image"
-            >
-              <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </button>
-
-            {/* Mobile Navigation Arrows */}
-            {galleryImages.length > 1 && (
-              <div className="flex sm:hidden absolute inset-y-0 inset-x-2 items-center justify-between pointer-events-none">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveImageIndex((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1))
-                  }
-                  className="p-1.5 bg-black/40 text-white pointer-events-auto rounded-full"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveImageIndex((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1))
-                  }
-                  className="p-1.5 bg-black/40 text-white pointer-events-auto rounded-full"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Thumbnail Strip */}
-          {galleryImages.length > 1 && (
-            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 max-w-full">
-              {galleryImages.map((img, idx) => (
-                <button
-                  key={img + idx}
-                  type="button"
-                  onClick={() => setActiveImageIndex(idx)}
-                  className={`relative w-16 h-20 sm:w-20 sm:h-24 md:w-24 md:h-28 flex-shrink-0 bg-[#EEEAE0] border-2 transition-all ${
-                    activeImageIndex === idx
-                      ? "border-[#176B45] opacity-100 shadow-sm"
-                      : "border-[#E2DFD6] opacity-70 hover:opacity-100"
-                  }`}
-                  aria-label={`Switch to gallery photo ${idx + 1}`}
-                >
-                  <Image
-                    src={img}
-                    alt={`${product.name} thumbnail ${idx + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="96px"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="lg:col-span-7 w-full">
+          <ProductGallery
+            productName={product.name}
+            tag={product.tag}
+            images={galleryImages}
+          />
         </div>
 
         {/* ================= RIGHT COLUMN: PRODUCT INFORMATION ================= */}
@@ -524,28 +438,6 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           </div>
         </div>
       </div>
-
-      {/* ================= ENLARGED ZOOM MODAL ================= */}
-      {isZoomModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-          <button
-            onClick={() => setIsZoomModalOpen(false)}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 sm:p-3 text-white hover:text-[#AA9160] transition-colors"
-            aria-label="Close enlarged view"
-          >
-            <X className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-          <div className="relative w-full max-w-4xl h-[75vh] sm:h-[85vh]">
-            <Image
-              src={activeImage}
-              alt={`${product.name} zoomed`}
-              fill
-              className="object-contain"
-              sizes="95vw"
-            />
-          </div>
-        </div>
-      )}
 
       {/* ================= SIZE GUIDE MODAL ================= */}
       <SizeGuideModal

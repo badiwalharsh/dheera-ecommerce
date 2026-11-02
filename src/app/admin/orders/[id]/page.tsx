@@ -157,7 +157,7 @@ export default function AdminOrderDetailPage() {
                 {order.items.map((item, i) => (
                   <div key={item.id || i} className="py-3 flex items-center justify-between gap-4 text-xs">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-14 relative bg-[#EEEAE0] border border-[#E2DFD6] rounded-sm overflow-hidden shrink-0">
+                      <div className="w-12 aspect-[3/4] relative bg-[#EEEAE0] border border-[#E2DFD6] rounded-sm overflow-hidden shrink-0">
                         <Image
                           src={item.image || "/images/products/product-1.jpg"}
                           alt={item.name}

@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/ui/product-image";
 import { formatCurrencyINR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useShop } from "@/context/shop-context";
@@ -42,12 +42,13 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           className="absolute inset-0 block w-full h-full overflow-hidden z-0"
           aria-label={`View ${product.name}`}
         >
-          <Image
+          <ProductImage
             src={product.image}
             alt={product.name}
-            fill
+            aspectRatio="auto"
             priority={priority}
-            className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+            quality={85}
+            className="transition-transform duration-700 ease-out group-hover:scale-105"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         </Link>

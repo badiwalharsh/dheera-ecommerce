@@ -152,7 +152,7 @@ export default function AdminProductsPage() {
                     <tr key={p.id} className="hover:bg-white/80 transition-colors">
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-14 relative bg-[#EEEAE0] shrink-0 border border-[#E2DFD6] overflow-hidden rounded-sm">
+                          <div className="w-12 aspect-[3/4] relative bg-[#EEEAE0] shrink-0 border border-[#E2DFD6] overflow-hidden rounded-sm">
                             <Image
                               src={p.image || "/images/banners/hero-editorial.jpg"}
                               alt={p.name}

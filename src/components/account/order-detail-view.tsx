@@ -202,7 +202,7 @@ export function OrderDetailView({ orderIdentifier }: OrderDetailViewProps) {
           <div className="divide-y divide-[#E2DFD6]/70">
             {order.items.map((item) => (
               <div key={item.id} className="py-4 first:pt-0 last:pb-0 flex items-start gap-4">
-                <div className="relative w-16 h-20 sm:w-20 sm:h-24 bg-[#EEEAE0] border border-[#E2DFD6] rounded-sm overflow-hidden flex-shrink-0">
+                <div className="relative w-16 aspect-[3/4] sm:w-20 bg-[#EEEAE0] border border-[#E2DFD6] rounded-sm overflow-hidden flex-shrink-0">
                   <Image
                     src={item.image}
                     alt={item.name}

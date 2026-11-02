@@ -71,10 +71,18 @@ export interface Product {
   details?: string[];
   basePrice: number;
   compareAtPrice?: number;
+  taxRatePercent?: number;
   isFeatured: boolean;
   isNewArrival: boolean;
   isCustomizable: boolean;
   isActive: boolean;
+  status?: "draft" | "published" | "archived";
+  availabilityStatus?: "in_stock" | "made_to_order" | "pre_order" | "out_of_stock";
+  isPrototype?: boolean;
+  garmentType?: string;
+  craftsmanship?: string;
+  fitInfo?: string;
+  sizeGuide?: string;
   tag?: string;
   createdAt: string;
   updatedAt: string;

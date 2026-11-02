@@ -14,6 +14,8 @@ const FIXTURE_PRODUCTS: CatalogProduct[] = SAMPLE_PRODUCTS.map((p) => ({
   categorySlug: p.categorySlug,
   price: p.price,
   originalPrice: p.originalPrice,
+  mrp: p.originalPrice,
+  taxRatePercent: 12.0,
   tag: p.tag,
   image: p.image,
   gallery: [...p.gallery],
@@ -26,14 +28,56 @@ const FIXTURE_PRODUCTS: CatalogProduct[] = SAMPLE_PRODUCTS.map((p) => ({
   sizes: [...p.sizes],
   colors: [...p.colors],
   inStock: p.inStock,
+  availabilityStatus: p.isMadeToOrder ? "made_to_order" : "in_stock",
   isReadyToShip: p.isReadyToShip,
   isMadeToOrder: p.isMadeToOrder,
   isFeatured: p.isFeatured,
   isNewArrival: p.isNewArrival,
   isCustomizable: p.isCustomizable,
+  status: "published",
+  isPrototype: true,
+  garmentType:
+    p.categorySlug === "kurta-sets"
+      ? "Kurta Set"
+      : p.categorySlug === "sarees"
+      ? "Saree"
+      : p.categorySlug === "suits"
+      ? "Suit"
+      : "Dupatta",
   variants: p.variants.map((v) => ({ ...v })),
   isDevelopmentFixture: true,
 }));
+
+/**
+ * Archives all prototype products so they cannot appear as active commercial inventory
+ */
+export function archiveAllPrototypeProducts(): { archivedCount: number; archivedIds: string[] } {
+  const archivedIds: string[] = [];
+  for (const p of FIXTURE_PRODUCTS) {
+    if (p.isPrototype || p.isDevelopmentFixture) {
+      p.status = "archived";
+      p.inStock = false;
+      p.isFeatured = false;
+      archivedIds.push(p.id);
+    }
+  }
+  return { archivedCount: archivedIds.length, archivedIds };
+}
+
+/**
+ * Restores prototype products to published state (e.g. for development / testing reset)
+ */
+export function restorePrototypeProducts(): { restoredCount: number } {
+  let count = 0;
+  for (const p of FIXTURE_PRODUCTS) {
+    if (p.isPrototype || p.isDevelopmentFixture) {
+      p.status = "published";
+      p.inStock = true;
+      count++;
+    }
+  }
+  return { restoredCount: count };
+}
 
 
 
@@ -94,11 +138,14 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryInfo | nu
 /**
  * Fetches a product by its URL slug
  */
-export async function getProductBySlug(slug: string): Promise<CatalogProduct | null> {
+export async function getProductBySlug(
+  slug: string,
+  options?: { includeUnpublished?: boolean }
+): Promise<CatalogProduct | null> {
   if (isSupabaseConfigured()) {
     try {
       const supabase = createClientServer();
-      const { data: p, error } = await supabase
+      const query = supabase
         .from("products")
         .select(`
           id,
@@ -119,9 +166,13 @@ export async function getProductBySlug(slug: string): Promise<CatalogProduct | n
           product_images ( id, image_url, alt_text, display_order, is_primary ),
           product_variants ( id, size, colour, sku, price_modifier, inventory ( quantity_available ) )
         `)
-        .eq("slug", slug)
-        .eq("is_active", true)
-        .single();
+        .eq("slug", slug);
+
+      if (!options?.includeUnpublished) {
+        query.eq("is_active", true);
+      }
+
+      const { data: p, error } = await query.single();
 
       if (!error && p) {
         const rawCategory = Array.isArray(p.categories) ? p.categories[0] : p.categories;
@@ -184,6 +235,7 @@ export async function getProductBySlug(slug: string): Promise<CatalogProduct | n
           isFeatured: p.is_featured,
           isNewArrival: p.is_new_arrival,
           isCustomizable: p.is_customizable,
+          status: p.is_active ? "published" : "archived",
           variants,
           isDevelopmentFixture: false,
         };
@@ -195,16 +247,30 @@ export async function getProductBySlug(slug: string): Promise<CatalogProduct | n
 
   // Fallback to development fixtures
   const found = FIXTURE_PRODUCTS.find((p) => p.slug === slug || p.id === slug);
-  return found || null;
+  if (!found) return null;
+
+  if (!options?.includeUnpublished && found.status && found.status !== "published") {
+    return null;
+  }
+
+  return found;
 }
 
 /**
  * Fetches a product by its ID
  */
-export async function getProductById(id: string): Promise<CatalogProduct | null> {
+export async function getProductById(
+  id: string,
+  options?: { includeUnpublished?: boolean }
+): Promise<CatalogProduct | null> {
   const found = FIXTURE_PRODUCTS.find((p) => p.id === id);
-  if (found) return found;
-  return getProductBySlug(id);
+  if (found) {
+    if (!options?.includeUnpublished && found.status && found.status !== "published") {
+      return null;
+    }
+    return found;
+  }
+  return getProductBySlug(id, options);
 }
 
 /**
@@ -212,7 +278,8 @@ export async function getProductById(id: string): Promise<CatalogProduct | null>
  */
 export async function getAllProducts(
   filters?: ProductFilterState,
-  sort: SortOption = "featured"
+  sort: SortOption = "featured",
+  options?: { includeUnpublished?: boolean }
 ): Promise<CatalogProduct[]> {
   let products = [...FIXTURE_PRODUCTS];
 
@@ -240,8 +307,11 @@ export async function getAllProducts(
           categories ( id, name, slug ),
           product_images ( id, image_url, alt_text, display_order, is_primary ),
           product_variants ( id, size, colour, sku, price_modifier, inventory ( quantity_available ) )
-        `)
-        .eq("is_active", true);
+        `);
+
+      if (!options?.includeUnpublished) {
+        query.eq("is_active", true);
+      }
 
       const { data, error } = await query;
       if (!error && data && data.length > 0) {
@@ -303,6 +373,7 @@ export async function getAllProducts(
             isFeatured: p.is_featured,
             isNewArrival: p.is_new_arrival,
             isCustomizable: p.is_customizable,
+            status: p.is_active ? "published" : "archived",
             variants,
             isDevelopmentFixture: false,
           };
@@ -311,6 +382,11 @@ export async function getAllProducts(
     } catch {
       // Fall through to fixture products
     }
+  }
+
+  // Filter by publication status for public storefront unless includeUnpublished is true
+  if (!options?.includeUnpublished) {
+    products = products.filter((p) => (p.status ? p.status === "published" : p.inStock));
   }
 
   // Apply filters in memory

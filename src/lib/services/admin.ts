@@ -26,6 +26,8 @@ import {
   deleteDynamicCategory,
   getMutableProducts,
   getMutableCategories,
+  archiveAllPrototypeProducts,
+  restorePrototypeProducts,
 } from "@/lib/data/products";
 import { getAllOrdersAdmin, updateOrderStatusAdmin } from "@/lib/services/orders";
 import {
@@ -397,33 +399,85 @@ export async function getAdminDashboardStats(
 // 2. PRODUCT MANAGEMENT (CRUD, Duplicate, Archive, Featured, Publish)
 // -----------------------------------------------------------------------------
 
+export interface PublicationValidationResult {
+  canPublish: boolean;
+  missingFields: string[];
+}
+
+export function validateProductForPublication(
+  product: Partial<ProductFormData | CatalogProduct>
+): PublicationValidationResult {
+  const missing: string[] = [];
+  if (!product.name || !product.name.trim()) missing.push("Product Name");
+  if (!product.sku || !product.sku.trim()) missing.push("Unique SKU");
+  if (!product.category || !product.category.trim()) missing.push("Category");
+  if (product.price === undefined || Number(product.price) <= 0) missing.push("Selling Price (> 0)");
+  if (!product.description || !product.description.trim()) missing.push("Product Description");
+  if (!product.image || !product.image.trim()) {
+    missing.push("Main Product Photograph");
+  }
+  const validAvail = ["in_stock", "made_to_order", "pre_order", "out_of_stock"];
+  if (product.availabilityStatus && !validAvail.includes(product.availabilityStatus)) {
+    missing.push("Valid Availability Status");
+  }
+
+  return {
+    canPublish: missing.length === 0,
+    missingFields: missing,
+  };
+}
+
 export async function getAdminProducts(): Promise<CatalogProduct[]> {
-  return getAllProducts();
+  return getAllProducts(undefined, "featured", { includeUnpublished: true });
 }
 
 export async function getAdminProductById(id: string): Promise<CatalogProduct | null> {
-  return getProductById(id);
+  return getProductById(id, { includeUnpublished: true });
+}
+
+export async function archiveAdminPrototypes(admin: AdminUser): Promise<{ archivedCount: number; archivedIds: string[] }> {
+  const result = archiveAllPrototypeProducts();
+  await logAdminAction({
+    admin,
+    action: "product_archive_prototypes",
+    targetType: "product",
+    details: { archivedCount: result.archivedCount, archivedIds: result.archivedIds },
+  });
+  return result;
 }
 
 export async function createAdminProduct(
   formData: ProductFormData,
   admin: AdminUser
 ): Promise<CatalogProduct> {
+  const targetStatus = formData.status || "draft";
+
+  // Validate publication gate if explicitly published
+  if (targetStatus === "published") {
+    const check = validateProductForPublication(formData);
+    if (!check.canPublish) {
+      throw new Error(
+        `Cannot publish incomplete garment. Missing required fields: ${check.missingFields.join(", ")}. Save as draft to continue editing later.`
+      );
+    }
+  }
+
   const newId = `prod-${crypto.randomUUID().slice(0, 8)}`;
   const slug = formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
+  const initialStock = Number(formData.stock) >= 0 ? Number(formData.stock) : 5;
   const variants = (formData.sizes || ["S", "M", "L"]).flatMap((size) =>
     (formData.colors || [formData.colour || "Standard"]).map((colour) => {
       const vSku = `${formData.sku || "DHR"}-${size}-${colour.slice(0, 3).toUpperCase()}`;
-      setVariantStock(newId, size, colour, 5);
+      setVariantStock(newId, size, colour, initialStock);
       return {
         id: `var-${crypto.randomUUID().slice(0, 8)}`,
         size,
         colour,
         sku: vSku,
         priceModifier: 0,
-        inStock: true,
-        quantityAvailable: 5,
+        inStock: initialStock > 0,
+        quantityAvailable: initialStock,
       };
     })
   );
@@ -436,6 +490,8 @@ export async function createAdminProduct(
     categorySlug: formData.categorySlug,
     price: Number(formData.price),
     originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
+    mrp: formData.mrp || formData.originalPrice ? Number(formData.mrp || formData.originalPrice) : undefined,
+    taxRatePercent: formData.taxRatePercent !== undefined ? Number(formData.taxRatePercent) : 12.0,
     tag: formData.tag || undefined,
     image: formData.image || "/images/banners/hero-editorial.jpg",
     gallery: formData.gallery && formData.gallery.length > 0 ? formData.gallery : [formData.image || "/images/banners/hero-editorial.jpg"],
@@ -447,12 +503,20 @@ export async function createAdminProduct(
     details: formData.details || [],
     sizes: formData.sizes || ["S", "M", "L"],
     colors: formData.colors || [formData.colour || "Standard"],
-    inStock: formData.inStock !== false,
+    inStock: formData.inStock !== false && targetStatus !== "archived",
+    stock: initialStock,
+    availabilityStatus: formData.availabilityStatus || (formData.isMadeToOrder ? "made_to_order" : "in_stock"),
     isReadyToShip: formData.isReadyToShip !== false,
     isMadeToOrder: !!formData.isMadeToOrder,
     isFeatured: !!formData.isFeatured,
     isNewArrival: formData.isNewArrival !== false,
     isCustomizable: !!formData.isCustomizable,
+    status: targetStatus,
+    isPrototype: !!formData.isPrototype,
+    garmentType: formData.garmentType,
+    craftsmanship: formData.craftsmanship,
+    fitInfo: formData.fitInfo,
+    sizeGuide: formData.sizeGuide,
     variants,
   };
 
@@ -475,7 +539,7 @@ export async function createAdminProduct(
         is_featured: product.isFeatured,
         is_new_arrival: product.isNewArrival,
         is_customizable: product.isCustomizable,
-        is_active: product.inStock,
+        is_active: product.status === "published",
         tag: product.tag,
       });
     } catch {
@@ -488,7 +552,7 @@ export async function createAdminProduct(
     action: "product_create",
     targetType: "product",
     targetId: product.id,
-    details: { name: product.name, sku: product.sku },
+    details: { name: product.name, sku: product.sku, status: product.status },
   });
 
   return product;
@@ -499,28 +563,59 @@ export async function updateAdminProduct(
   formData: Partial<ProductFormData>,
   admin: AdminUser
 ): Promise<CatalogProduct | null> {
-  const existing = await getProductById(id);
+  const existing = await getProductById(id, { includeUnpublished: true });
   if (!existing) return null;
+
+  // If status is being set to published, validate the merged state
+  if (formData.status === "published") {
+    const candidate = { ...existing, ...formData };
+    const check = validateProductForPublication(candidate);
+    if (!check.canPublish) {
+      throw new Error(
+        `Cannot publish incomplete garment. Missing required fields: ${check.missingFields.join(", ")}. Save as draft to continue editing later.`
+      );
+    }
+  }
 
   const updates: Partial<CatalogProduct> = {};
   if (formData.name) updates.name = formData.name;
   if (formData.slug) updates.slug = formData.slug;
+  if (formData.sku) updates.sku = formData.sku;
   if (formData.category) updates.category = formData.category;
   if (formData.categorySlug) updates.categorySlug = formData.categorySlug;
   if (formData.price !== undefined) updates.price = Number(formData.price);
   if (formData.originalPrice !== undefined) updates.originalPrice = Number(formData.originalPrice);
+  if (formData.mrp !== undefined) updates.mrp = Number(formData.mrp);
+  if (formData.taxRatePercent !== undefined) updates.taxRatePercent = Number(formData.taxRatePercent);
+  if (formData.stock !== undefined) updates.stock = Number(formData.stock);
   if (formData.tag !== undefined) updates.tag = formData.tag;
   if (formData.description) updates.description = formData.description;
   if (formData.shortDescription) updates.shortDescription = formData.shortDescription;
   if (formData.fabric) updates.fabric = formData.fabric;
   if (formData.care) updates.care = formData.care;
+  if (formData.craftsmanship !== undefined) updates.craftsmanship = formData.craftsmanship;
+  if (formData.fitInfo !== undefined) updates.fitInfo = formData.fitInfo;
+  if (formData.sizeGuide !== undefined) updates.sizeGuide = formData.sizeGuide;
+  if (formData.garmentType !== undefined) updates.garmentType = formData.garmentType;
   if (formData.details) updates.details = formData.details;
+  if (formData.sizes) updates.sizes = formData.sizes;
+  if (formData.colors) updates.colors = formData.colors;
   if (formData.image) updates.image = formData.image;
   if (formData.gallery) updates.gallery = formData.gallery;
   if (formData.isFeatured !== undefined) updates.isFeatured = formData.isFeatured;
   if (formData.isNewArrival !== undefined) updates.isNewArrival = formData.isNewArrival;
   if (formData.isCustomizable !== undefined) updates.isCustomizable = formData.isCustomizable;
+  if (formData.isReadyToShip !== undefined) updates.isReadyToShip = formData.isReadyToShip;
+  if (formData.isMadeToOrder !== undefined) updates.isMadeToOrder = formData.isMadeToOrder;
   if (formData.inStock !== undefined) updates.inStock = formData.inStock;
+  if (formData.status !== undefined) updates.status = formData.status;
+  if (formData.availabilityStatus !== undefined) updates.availabilityStatus = formData.availabilityStatus;
+  if (formData.isPrototype !== undefined) updates.isPrototype = formData.isPrototype;
+
+  if (updates.status === "archived") {
+    updates.inStock = false;
+    updates.isFeatured = false;
+  }
 
   updateDynamicProduct(existing.id, updates);
 

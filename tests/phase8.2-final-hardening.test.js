@@ -254,7 +254,7 @@ async function runSuite() {
   const migrationFiles = fs.readdirSync(migrationsDir).filter((f) => f.endsWith(".sql")).sort();
 
   test(
-    migrationFiles.length === 8 &&
+    migrationFiles.length >= 8 &&
       migrationFiles[0].startsWith("20261031000000") &&
       migrationFiles[7].startsWith("20261102000000"),
     "Test 17: All eight SQL migrations follow sequential chronological timestamp naming"

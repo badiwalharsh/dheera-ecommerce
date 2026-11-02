@@ -10,11 +10,20 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const search = url.searchParams.get("search")?.toLowerCase();
   const category = url.searchParams.get("category");
+  const status = url.searchParams.get("status")?.toLowerCase();
 
   let products = await getAdminProducts();
 
   if (category && category !== "all") {
     products = products.filter((p) => p.categorySlug === category || p.category === category);
+  }
+
+  if (status && status !== "all") {
+    if (status === "prototype") {
+      products = products.filter((p) => p.isPrototype === true);
+    } else {
+      products = products.filter((p) => p.status === status);
+    }
   }
 
   if (search) {
@@ -40,33 +49,35 @@ export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as ProductFormData;
 
-    if (!body.name || !body.price || !body.category) {
+    if (!body.name || !body.name.trim()) {
       return NextResponse.json(
-        { success: false, error: "Product name, category, and price are mandatory." },
+        { success: false, error: "Product name is mandatory." },
         { status: 400 }
       );
     }
 
-    if (Number(body.price) <= 0) {
+    if (body.price !== undefined && Number(body.price) < 0) {
       return NextResponse.json(
-        { success: false, error: "Selling price must be greater than zero." },
+        { success: false, error: "Selling price cannot be negative." },
         { status: 400 }
       );
     }
 
     const created = await createAdminProduct(body, authResult.admin);
 
+    const statusLabel = created.status === "published" ? "published" : "saved as draft";
     return NextResponse.json(
       {
         success: true,
         product: created,
-        message: `Garment "${created.name}" created and published successfully.`,
+        message: `Garment "${created.name}" ${statusLabel} successfully.`,
       },
       { status: 201 }
     );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Product creation failed";
-    return NextResponse.json({ success: false, error: msg }, { status: 500 });
+    const status = msg.includes("Cannot publish incomplete") ? 400 : 500;
+    return NextResponse.json({ success: false, error: msg }, { status });
   }
 }
 

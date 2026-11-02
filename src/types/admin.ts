@@ -167,6 +167,11 @@ export interface ProductFormData {
   description: string;
   price: number;
   originalPrice?: number;
+  mrp?: number;
+  taxRatePercent?: number;
+  stock?: number;
+  status?: "draft" | "published" | "archived";
+  availabilityStatus?: "in_stock" | "made_to_order" | "pre_order" | "out_of_stock";
   fabric: string;
   colour: string;
   colors: string[];
@@ -180,6 +185,11 @@ export interface ProductFormData {
   isFeatured: boolean;
   isNewArrival: boolean;
   inStock: boolean;
+  isPrototype?: boolean;
+  garmentType?: string;
+  craftsmanship?: string;
+  fitInfo?: string;
+  sizeGuide?: string;
   image: string;
   gallery: string[];
   variants?: ProductVariantInfo[];

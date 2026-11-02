@@ -26,6 +26,9 @@ export interface ProductVariantInfo {
   quantityAvailable: number;
 }
 
+export type ProductPublicationStatus = "draft" | "published" | "archived";
+export type ProductAvailabilityStatus = "in_stock" | "made_to_order" | "pre_order" | "out_of_stock";
+
 export interface CatalogProduct {
   id: string;
   slug: string;
@@ -34,6 +37,8 @@ export interface CatalogProduct {
   categorySlug: "kurta-sets" | "sarees" | "suits" | "dupattas" | string;
   price: number;
   originalPrice?: number;
+  mrp?: number;
+  taxRatePercent?: number;
   tag?: string;
   image: string;
   gallery: string[];
@@ -46,11 +51,19 @@ export interface CatalogProduct {
   sizes: string[];
   colors: string[];
   inStock: boolean;
+  stock?: number;
+  availabilityStatus?: ProductAvailabilityStatus;
   isReadyToShip: boolean;
   isMadeToOrder: boolean;
   isFeatured: boolean;
   isNewArrival: boolean;
   isCustomizable: boolean;
+  status?: ProductPublicationStatus;
+  isPrototype?: boolean;
+  garmentType?: string;
+  craftsmanship?: string;
+  fitInfo?: string;
+  sizeGuide?: string;
   variants: ProductVariantInfo[];
   isDevelopmentFixture?: boolean;
 }

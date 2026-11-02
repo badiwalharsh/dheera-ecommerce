@@ -1,0 +1,9 @@
+name,sku,category,price,original_price,stock,availability_status,description,short_description,fabric,care,craftsmanship,fit_info,colour,sizes,garment_type
+# INSTRUCTIONS: All prices in INR (₹). Categories: Kurta Sets | Sarees | Suits | Dupattas. Availability: in_stock | made_to_order | pre_order | out_of_stock. Delete this row and the example row below before importing.
+[EXAMPLE DO NOT USE] Handcrafted Silk Kurta Set,DHR-KRT-101,Kurta Sets,4999,5999,10,in_stock,"Handcrafted pure silk kurta set with antique zardozi embroidery over the neckline. Paired with coordinating trousers and sheer organza drape.","Pure silk embroidered kurta set with straight pants.",Pure Handloom Silk,Dry Clean Only,Jaipur Hand Embroidery,Straight regular fit,Rani Pink,"XS, S, M, L, XL",Kurta Set
+,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,
+

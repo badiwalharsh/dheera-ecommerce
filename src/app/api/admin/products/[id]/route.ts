@@ -42,7 +42,8 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Product update failed";
-    return NextResponse.json({ success: false, error: msg }, { status: 500 });
+    const status = msg.includes("Cannot publish incomplete") ? 400 : 500;
+    return NextResponse.json({ success: false, error: msg }, { status });
   }
 }
 

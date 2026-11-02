@@ -5,10 +5,10 @@ import { createClientServer } from "@/lib/supabase/server";
 import { CANONICAL_PUBLIC_BUCKET, STORAGE_BUCKETS } from "@/lib/constants/storage";
 import crypto from "crypto";
 
-const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
-const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp"];
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg", "image/avif"];
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "avif"];
 const ALLOWED_FOLDERS = ["products", "categories", "banners", "customizations"];
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB limit for high-resolution photography
 
 export async function POST(req: NextRequest) {
   const authResult = await requireAdmin(req);
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid file type. Only JPG, JPEG, PNG, and WebP images are permitted.",
+          error: "Invalid file type. Only JPG, JPEG, PNG, WebP, and AVIF images are permitted.",
         },
         { status: 400 }
       );
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: `File size exceeds the 5MB limit (provided: ${(file.size / (1024 * 1024)).toFixed(2)} MB).`,
+          error: `File size exceeds the 10MB limit (provided: ${(file.size / (1024 * 1024)).toFixed(2)} MB).`,
         },
         { status: 400 }
       );
@@ -116,6 +116,66 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Upload processing failed";
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const authResult = await requireAdmin(req);
+  if ("errorResponse" in authResult) return authResult.errorResponse;
+
+  try {
+    const url = new URL(req.url);
+    const filenameParam = url.searchParams.get("filename");
+    let filename = filenameParam;
+
+    if (!filename) {
+      const body = await req.json().catch(() => ({}));
+      filename = body?.filename || body?.url;
+    }
+
+    if (!filename) {
+      return NextResponse.json(
+        { success: false, error: "Filename or asset URL is required for deletion." },
+        { status: 400 }
+      );
+    }
+
+    // Sanitize path to prevent directory traversal
+    const sanitizedFilename = String(filename)
+      .replace(/\.\./g, "")
+      .replace(/^\/images\/products\//, "products/")
+      .trim();
+
+    if (isSupabaseConfigured()) {
+      try {
+        const supabase = createClientServer();
+        let targetBucket: string = CANONICAL_PUBLIC_BUCKET;
+        const { error } = await supabase.storage.from(targetBucket).remove([sanitizedFilename]);
+        if (error && targetBucket !== STORAGE_BUCKETS.LEGACY_PRODUCTS) {
+          targetBucket = STORAGE_BUCKETS.LEGACY_PRODUCTS;
+          await supabase.storage.from(targetBucket).remove([sanitizedFilename]);
+        }
+      } catch {
+        // Storage removal handled gracefully
+      }
+    }
+
+    await logAdminAction({
+      admin: authResult.admin,
+      action: "file_delete",
+      targetType: "storage",
+      targetId: sanitizedFilename,
+      details: { requestedPath: filename },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Asset "${sanitizedFilename}" removed from storage successfully.`,
+      filename: sanitizedFilename,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Deletion failed";
     return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }

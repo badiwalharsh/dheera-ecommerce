@@ -177,3 +177,4 @@ A dedicated automated test suite `tests/phase8.6-image-upgrade.test.js` was impl
 - **Physical Garment Claims:** Concept prototype images clearly labeled internally; physical photography guide supplied for real commercial inventory.
 
 *Phase 8.6 is complete and ready for review.*
+

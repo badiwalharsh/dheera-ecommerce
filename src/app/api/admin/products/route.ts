@@ -21,6 +21,8 @@ export async function GET(req: NextRequest) {
   if (status && status !== "all") {
     if (status === "prototype") {
       products = products.filter((p) => p.isPrototype === true);
+    } else if (status === "out_of_stock") {
+      products = products.filter((p) => p.availabilityStatus === "out_of_stock" || p.inStock === false || p.stock === 0);
     } else {
       products = products.filter((p) => p.status === status);
     }

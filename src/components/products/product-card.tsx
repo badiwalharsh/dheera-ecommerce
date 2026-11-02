@@ -54,13 +54,19 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         </Link>
 
         {/* Badge Overlay */}
-        {product.tag && (
+        {((product as any).availabilityStatus === "out_of_stock" || (product as any).inStock === false || (product as any).stock === 0) ? (
+          <div className="absolute top-2 sm:top-3 left-2 sm:left-3 pointer-events-none z-10">
+            <span className="bg-[#252A25]/90 text-white text-[8px] sm:text-[9px] px-1.5 sm:px-2 py-0.5 rounded-sm uppercase tracking-luxury font-medium shadow-xs">
+              Out of Stock
+            </span>
+          </div>
+        ) : product.tag ? (
           <div className="absolute top-2 sm:top-3 left-2 sm:left-3 pointer-events-none z-10">
             <Badge variant="default" className="text-[8px] sm:text-[9px] px-1.5 sm:px-2 py-0.5">
               {product.tag}
             </Badge>
           </div>
-        )}
+        ) : null}
 
         {/* Wishlist Heart Button */}
         <button
@@ -95,18 +101,20 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
             <span>Quick View</span>
           </button>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              addToBag(product as SampleProduct);
-            }}
-            className="bg-[#176B45] hover:bg-[#315039] text-[#FAF9F5] p-1.5 sm:p-2 transition-colors shadow-sm"
-            aria-label="Add to shopping bag"
-          >
-            <ShoppingBag className="w-3.5 h-3.5" />
-          </button>
+          {((product as any).availabilityStatus !== "out_of_stock" && (product as any).inStock !== false && (product as any).stock !== 0) && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addToBag(product as SampleProduct);
+              }}
+              className="bg-[#176B45] hover:bg-[#315039] text-[#FAF9F5] p-1.5 sm:p-2 transition-colors shadow-sm"
+              aria-label="Add to shopping bag"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
 

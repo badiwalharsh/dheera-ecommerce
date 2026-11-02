@@ -194,6 +194,16 @@ export default function AdminProductsPage() {
               <span>Import via CSV</span>
             </button>
 
+            <a
+              href={`/api/admin/products/export${selectedStatus !== "all" || selectedCategory !== "all" ? `?status=${selectedStatus}&category=${selectedCategory}` : ""}`}
+              download="dheera-commercial-catalogue.csv"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-sm bg-[#FAF9F5] border border-[#315039] text-[#315039] hover:bg-[#315039] hover:text-white text-xs uppercase tracking-luxury font-medium transition-colors"
+              title="Export complete garment catalogue as CSV"
+            >
+              <span>📤</span>
+              <span>Export CSV</span>
+            </a>
+
             <button
               onClick={handleArchiveAllPrototypes}
               className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-sm bg-[#FAF9F5] border border-[#AA9160] text-[#AA9160] hover:bg-[#AA9160] hover:text-white text-xs uppercase tracking-luxury font-medium transition-colors"
@@ -266,6 +276,7 @@ export default function AdminProductsPage() {
                 <option value="all">All Statuses</option>
                 <option value="published">Published (Live)</option>
                 <option value="draft">Draft (Private)</option>
+                <option value="out_of_stock">Out of Stock</option>
                 <option value="archived">Archived (Hidden)</option>
                 <option value="prototype">Prototypes Only</option>
               </select>

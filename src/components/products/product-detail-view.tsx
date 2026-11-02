@@ -51,10 +51,12 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const galleryImages = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image];
 
   // Selected variant inventory check
-  const matchedVariant = product.variants.find(
+  const isProductOutOfStock =
+    product.availabilityStatus === "out_of_stock" || product.inStock === false || (product as any).stock === 0;
+  const matchedVariant = product.variants?.find(
     (v) => v.size === selectedSize && (!v.colour || v.colour === selectedColor)
   );
-  const isAvailable = matchedVariant ? matchedVariant.inStock : product.inStock;
+  const isAvailable = isProductOutOfStock ? false : (matchedVariant ? matchedVariant.inStock : product.inStock);
 
   const handleAddToBag = () => {
     if (!isAvailable) return;
@@ -264,7 +266,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 }`}
               >
                 <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="truncate">{isAvailable ? "Add to Shopping Bag" : "Unavailable in Size"}</span>
+                <span className="truncate">{isProductOutOfStock ? "Out of Stock" : (isAvailable ? "Add to Shopping Bag" : "Unavailable in Size")}</span>
               </button>
 
               <button

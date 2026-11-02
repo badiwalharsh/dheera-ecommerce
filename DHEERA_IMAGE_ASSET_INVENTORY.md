@@ -84,3 +84,4 @@ All original prototype images and banners from early development phases are non-
 - `public/images/banners/originals/hero-editorial.jpg` and `category-*.jpg`: Safe offline backups.
 
 Any newly provisioned product image can be reverted to original state without database migration or service disruption.
+

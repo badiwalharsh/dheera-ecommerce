@@ -109,3 +109,4 @@ In compliance with strict project instructions:
 - Prototype imagery generated or enhanced during Phase 8.6 is strictly labeled as **illustrative concept imagery** for website architecture, visual QA, and UX validation.
 - All genuine commercial products onboarded in future production phases must follow the official **DHEERA Product Photography Guide** (`DHEERA_PRODUCT_PHOTOGRAPHY_GUIDE.md`) using authentic physical garment photography.
 - No illustrative concept image shall be promoted to customers as verified proof of handloom origin or physical fabric sample.
+

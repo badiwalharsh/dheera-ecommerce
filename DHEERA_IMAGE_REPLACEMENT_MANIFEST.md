@@ -119,3 +119,4 @@ This manifest specifies the complete before-and-after mapping for all visual ass
 - [x] `src/constants/index.ts` maps all 6 distinct view paths in each product's `gallery` array.
 - [x] UI component `product-gallery.tsx` renders all 6 badges and angle labels.
 - [x] Full test regression passes 100%.
+

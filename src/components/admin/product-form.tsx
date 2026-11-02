@@ -56,6 +56,15 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
   });
 
   const [imageAltTexts, setImageAltTexts] = useState<Record<string, string>>({});
+  const [photoAngles, setPhotoAngles] = useState<Record<string, string>>({});
+  const standardAngles = [
+    "Front View",
+    "Back View",
+    "Detail & Embroidery",
+    "Border Work",
+    "Fabric Texture",
+    "Styling & Draping",
+  ];
   const [newDetail, setNewDetail] = useState("");
   const [newColor, setNewColor] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -775,63 +784,86 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
               <div className="grid grid-cols-2 gap-3">
                 {formData.gallery.map((img, i) => {
                   const isPrimary = formData.image === img;
+                  const currentAngle = photoAngles[img] || standardAngles[i] || `Angle #${i + 1}`;
                   return (
-                    <div
-                      key={i}
-                      className={`relative aspect-[3/4] bg-[#EEEAE0] rounded-sm overflow-hidden border ${
-                        isPrimary ? "border-2 border-[#176B45] shadow-sm" : "border-[#E2DFD6]"
-                      }`}
-                    >
-                      <Image src={img} alt={`Preview ${i}`} fill className="object-cover" sizes="150px" />
-                      
-                      {/* Action overlay */}
-                      <div className="absolute top-1 right-1 flex gap-1 bg-black/60 p-1 rounded-sm">
-                        <button
-                          type="button"
-                          onClick={() => handleMoveImage(i, "left")}
-                          disabled={i === 0}
-                          className="text-white hover:text-amber-300 disabled:opacity-30 text-[10px]"
-                          title="Move earlier"
-                        >
-                          ◀
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleMoveImage(i, "right")}
-                          disabled={i === formData.gallery.length - 1}
-                          className="text-white hover:text-amber-300 disabled:opacity-30 text-[10px]"
-                          title="Move later"
-                        >
-                          ▶
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(img)}
-                          className="text-white hover:text-rose-400 text-[10px] ml-1"
-                          title="Delete photograph"
-                        >
-                          ✕
-                        </button>
-                      </div>
+                    <div key={i} className="flex flex-col gap-1">
+                      <div
+                        className={`relative aspect-[3/4] bg-[#EEEAE0] rounded-sm overflow-hidden border ${
+                          isPrimary ? "border-2 border-[#176B45] shadow-sm" : "border-[#E2DFD6]"
+                        }`}
+                      >
+                        <Image src={img} alt={`Preview ${i}`} fill className="object-cover" sizes="150px" />
 
-                      <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between">
-                        {isPrimary ? (
-                          <span className="bg-[#176B45] text-white text-[9px] px-1.5 py-0.5 rounded-sm font-medium uppercase tracking-luxury">
-                            Cover Image
+                        {/* Angle tag */}
+                        <div className="absolute top-1 left-1">
+                          <span className="text-[8px] bg-black/70 text-[#E2DFD6] font-medium px-1.5 py-0.5 rounded-sm uppercase tracking-wider backdrop-blur-xs">
+                            {currentAngle}
                           </span>
-                        ) : (
+                        </div>
+                        
+                        {/* Action overlay */}
+                        <div className="absolute top-1 right-1 flex gap-1 bg-black/60 p-1 rounded-sm">
                           <button
                             type="button"
-                            onClick={() => handleSetPrimaryImage(img)}
-                            className="bg-white/90 hover:bg-[#176B45] hover:text-white text-[#252A25] text-[9px] px-1.5 py-0.5 rounded-sm font-medium uppercase transition-colors"
+                            onClick={() => handleMoveImage(i, "left")}
+                            disabled={i === 0}
+                            className="text-white hover:text-amber-300 disabled:opacity-30 text-[10px]"
+                            title="Move earlier"
                           >
-                            Set Cover
+                            ◀
                           </button>
-                        )}
-                        <span className="text-[9px] text-white/80 bg-black/40 px-1 rounded">
-                          #{i + 1}
-                        </span>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveImage(i, "right")}
+                            disabled={i === formData.gallery.length - 1}
+                            className="text-white hover:text-amber-300 disabled:opacity-30 text-[10px]"
+                            title="Move later"
+                          >
+                            ▶
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(img)}
+                            className="text-white hover:text-rose-400 text-[10px] ml-1"
+                            title="Delete photograph"
+                          >
+                            ✕
+                          </button>
+                        </div>
+
+                        <div className="absolute bottom-1 left-1 right-1 flex items-center justify-between">
+                          {isPrimary ? (
+                            <span className="bg-[#176B45] text-white text-[9px] px-1.5 py-0.5 rounded-sm font-medium uppercase tracking-luxury">
+                              Cover Image
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleSetPrimaryImage(img)}
+                              className="bg-white/90 hover:bg-[#176B45] hover:text-white text-[#252A25] text-[9px] px-1.5 py-0.5 rounded-sm font-medium uppercase transition-colors"
+                            >
+                              Set Cover
+                            </button>
+                          )}
+                          <span className="text-[9px] text-white/80 bg-black/40 px-1 rounded">
+                            #{i + 1}
+                          </span>
+                        </div>
                       </div>
+
+                      {/* Angle Selector */}
+                      <select
+                        value={photoAngles[img] || standardAngles[i] || "Front View"}
+                        onChange={(e) => setPhotoAngles((prev) => ({ ...prev, [img]: e.target.value }))}
+                        className="w-full text-[9px] bg-white border border-[#E2DFD6] rounded px-1.5 py-0.5 text-[#315039] focus:outline-none focus:border-[#176B45]"
+                        title="Photography angle category"
+                      >
+                        {standardAngles.map((ang) => (
+                          <option key={ang} value={ang}>
+                            {ang}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   );
                 })}
@@ -841,11 +873,11 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
             {/* Upload Button */}
             <div>
               <label className="block text-[11px] uppercase tracking-luxury text-[#315039] font-medium mb-1">
-                Upload New Photograph (JPG, PNG, WebP)
+                Upload New Photograph (JPG, PNG, WebP, AVIF)
               </label>
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/jpg"
+                accept="image/jpeg,image/png,image/webp,image/jpg,image/avif"
                 onChange={handleFileUpload}
                 disabled={uploadingImage}
                 className="w-full text-xs text-[#74786F] file:mr-2 file:py-1.5 file:px-3 file:rounded-sm file:border-0 file:text-xs file:bg-[#176B45] file:text-white hover:file:bg-[#125837] cursor-pointer"

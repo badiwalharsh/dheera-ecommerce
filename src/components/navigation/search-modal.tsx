@@ -160,7 +160,7 @@ export function SearchModal() {
                       onClick={() => setSearchOpen(false)}
                       className="group flex gap-4 p-3 bg-[#EEEAE0]/40 border border-[#E2DFD6] hover:border-[#176B45] transition-colors"
                     >
-                      <div className="relative w-20 h-24 flex-shrink-0 bg-[#FAF9F5] overflow-hidden">
+                      <div className="relative w-20 aspect-[3/4] flex-shrink-0 bg-[#FAF9F5] overflow-hidden">
                         <Image
                           src={product.image}
                           alt={product.name}

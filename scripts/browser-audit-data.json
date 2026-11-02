@@ -1,0 +1,687 @@
+[
+  {
+    "page": "/",
+    "title": "Homepage",
+    "metrics": {
+      "title": "DHEERA — APPAREL & LIFESTYLE | Indian Heritage, Contemporary Soul.",
+      "imageCount": 15,
+      "brokenImages": 5,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 420,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbanners%2Fhero-editorial.jpg&w=2048&q=75",
+          "alt": "DHEERA — Indian Heritage, Contemporary Soul",
+          "naturalWidth": 720,
+          "naturalHeight": 405,
+          "clientWidth": 713,
+          "clientHeight": 679,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbanners%2Fcategory-kurta.jpg&w=2048&q=75",
+          "alt": "Kurta Sets",
+          "naturalWidth": 360,
+          "naturalHeight": 180,
+          "clientWidth": 291,
+          "clientHeight": 388,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbanners%2Fcategory-saree.jpg&w=2048&q=75",
+          "alt": "Sarees",
+          "naturalWidth": 360,
+          "naturalHeight": 180,
+          "clientWidth": 291,
+          "clientHeight": 388,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbanners%2Fcategory-suit.jpg&w=2048&q=75",
+          "alt": "Suits",
+          "naturalWidth": 360,
+          "naturalHeight": 180,
+          "clientWidth": 291,
+          "clientHeight": 388,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbanners%2Fcategory-dupatta.jpg&w=2048&q=75",
+          "alt": "Dupattas",
+          "naturalWidth": 360,
+          "naturalHeight": 180,
+          "clientWidth": 291,
+          "clientHeight": 388,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-1.jpg&w=2048&q=85",
+          "alt": "Gulab Embroidered Kurta Set",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 391,
+          "clientHeight": 522,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-2.jpg&w=2048&q=85",
+          "alt": "Ivory Chanderi Saree",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 391,
+          "clientHeight": 522,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-3.jpg&w=2048&q=85",
+          "alt": "Emerald Anarkali Set",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 391,
+          "clientHeight": 522,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-4.jpg&w=2048&q=85",
+          "alt": "Rust Embroidered Suit Set",
+          "naturalWidth": 0,
+          "naturalHeight": 0,
+          "clientWidth": 391,
+          "clientHeight": 522,
+          "isBroken": true
+        }
+      ],
+      "headingsCount": 26
+    }
+  },
+  {
+    "page": "/shop",
+    "title": "Catalogue / Shop",
+    "metrics": {
+      "title": "Shop All Handcrafted Pieces | DHEERA — Apparel & Lifestyle | DHEERA",
+      "imageCount": 8,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 100,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-1.jpg&w=2048&q=85",
+          "alt": "Gulab Embroidered Kurta Set",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 290,
+          "clientHeight": 387,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-2.jpg&w=2048&q=85",
+          "alt": "Ivory Chanderi Saree",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 290,
+          "clientHeight": 387,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-3.jpg&w=2048&q=85",
+          "alt": "Emerald Anarkali Set",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 290,
+          "clientHeight": 387,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-4.jpg&w=2048&q=85",
+          "alt": "Rust Embroidered Suit Set",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 290,
+          "clientHeight": 387,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-5.jpg&w=2048&q=85",
+          "alt": "Lavender Embroidered Kurta",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 290,
+          "clientHeight": 387,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-6.jpg&w=2048&q=85",
+          "alt": "Mustard Occasion Kurta Set",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 290,
+          "clientHeight": 387,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 10
+    }
+  },
+  {
+    "page": "/collections/kurta-sets",
+    "title": "Category: Kurta Sets",
+    "metrics": {
+      "title": "Kurta Sets Collection | DHEERA — Apparel & Lifestyle | DHEERA",
+      "imageCount": 5,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 88,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-1.jpg&w=2048&q=85",
+          "alt": "Gulab Embroidered Kurta Set",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 290,
+          "clientHeight": 387,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-5.jpg&w=2048&q=85",
+          "alt": "Lavender Embroidered Kurta",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 290,
+          "clientHeight": 387,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-6.jpg&w=2048&q=85",
+          "alt": "Mustard Occasion Kurta Set",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 290,
+          "clientHeight": 387,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 7
+    }
+  },
+  {
+    "page": "/product/gulab-embroidered-kurta-set",
+    "title": "Product Detail: Gulab Kurta Set",
+    "metrics": {
+      "title": "Gulab Embroidered Kurta Set | DHEERA — Apparel & Lifestyle | DHEERA",
+      "imageCount": 10,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 104,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-1.jpg&w=2048&q=90",
+          "alt": "Gulab Embroidered Kurta Set — Full Silhouette",
+          "naturalWidth": 495,
+          "naturalHeight": 660,
+          "clientWidth": 700,
+          "clientHeight": 934,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-1.jpg&w=2048&q=75",
+          "alt": "Gulab Embroidered Kurta Set thumbnail 1",
+          "naturalWidth": 96,
+          "naturalHeight": 127,
+          "clientWidth": 92,
+          "clientHeight": 124,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-1-detail.jpg&w=2048&q=75",
+          "alt": "Gulab Embroidered Kurta Set thumbnail 2",
+          "naturalWidth": 96,
+          "naturalHeight": 127,
+          "clientWidth": 92,
+          "clientHeight": 124,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-1-fabric.jpg&w=2048&q=75",
+          "alt": "Gulab Embroidered Kurta Set thumbnail 3",
+          "naturalWidth": 96,
+          "naturalHeight": 127,
+          "clientWidth": 92,
+          "clientHeight": 124,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-5.jpg&w=2048&q=85",
+          "alt": "Lavender Embroidered Kurta",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 291,
+          "clientHeight": 388,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-6.jpg&w=2048&q=85",
+          "alt": "Mustard Occasion Kurta Set",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 291,
+          "clientHeight": 388,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-2.jpg&w=2048&q=85",
+          "alt": "Ivory Chanderi Saree",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 291,
+          "clientHeight": 388,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fproducts%2Fproduct-3.jpg&w=2048&q=85",
+          "alt": "Emerald Anarkali Set",
+          "naturalWidth": 360,
+          "naturalHeight": 480,
+          "clientWidth": 291,
+          "clientHeight": 388,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 9
+    }
+  },
+  {
+    "page": "/cart",
+    "title": "Shopping Bag",
+    "metrics": {
+      "title": "Shopping Bag | DHEERA | DHEERA",
+      "imageCount": 2,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 84,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 4
+    }
+  },
+  {
+    "page": "/about",
+    "title": "Our Story / Brand Heritage",
+    "metrics": {
+      "title": "Our Story & Craft | DHEERA — Apparel & Lifestyle | DHEERA",
+      "imageCount": 3,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 148,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbanners%2Fhero-editorial.jpg&w=2048&q=75",
+          "alt": "DHEERA Master Craftsmanship and Handwoven Weaves",
+          "naturalWidth": 720,
+          "naturalHeight": 405,
+          "clientWidth": 588,
+          "clientHeight": 736,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 12
+    }
+  },
+  {
+    "page": "/contact",
+    "title": "Client Concierge / Contact",
+    "metrics": {
+      "title": "DHEERA — APPAREL & LIFESTYLE | Indian Heritage, Contemporary Soul.",
+      "imageCount": 2,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 76,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 10
+    }
+  },
+  {
+    "page": "/faq",
+    "title": "FAQ",
+    "metrics": {
+      "title": "DHEERA — APPAREL & LIFESTYLE | Indian Heritage, Contemporary Soul.",
+      "imageCount": 2,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 76,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 10
+    }
+  },
+  {
+    "page": "/shipping",
+    "title": "Shipping & Delivery",
+    "metrics": {
+      "title": "Shipping & Delivery Policy | DHEERA — Apparel & Lifestyle | DHEERA",
+      "imageCount": 2,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 84,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 11
+    }
+  },
+  {
+    "page": "/returns",
+    "title": "Returns & Exchanges",
+    "metrics": {
+      "title": "Returns & Exchanges Policy | DHEERA — Apparel & Lifestyle | DHEERA",
+      "imageCount": 2,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 80,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 11
+    }
+  },
+  {
+    "page": "/product/custom",
+    "title": "Atelier Customization",
+    "metrics": {
+      "title": "DHEERA — APPAREL & LIFESTYLE | Indian Heritage, Contemporary Soul.",
+      "imageCount": 3,
+      "brokenImages": 1,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 68,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbanners%2Fcategory-kurta.jpg&w=2048&q=75",
+          "alt": "DHEERA Bespoke Atelier Tailoring",
+          "naturalWidth": 0,
+          "naturalHeight": 0,
+          "clientWidth": 484,
+          "clientHeight": 646,
+          "isBroken": true
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 10
+    }
+  },
+  {
+    "page": "/account/login",
+    "title": "Customer Login",
+    "metrics": {
+      "title": "Sign In — Customer Portal | DHEERA",
+      "imageCount": 2,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 88,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 4
+    }
+  },
+  {
+    "page": "/admin/login",
+    "title": "Admin Portal Login",
+    "metrics": {
+      "title": "Admin Portal | DHEERA – Apparel & Lifestyle | DHEERA",
+      "imageCount": 2,
+      "brokenImages": 0,
+      "hasHorizontalOverflow": false,
+      "overflowDelta": -15,
+      "unlabelledButtons": 0,
+      "fcpMs": 84,
+      "imageStats": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fbrand%2Fdheera-logo.png&w=96&q=75",
+          "alt": "DHEERA Emblem",
+          "naturalWidth": 48,
+          "naturalHeight": 48,
+          "clientWidth": 44,
+          "clientHeight": 44,
+          "isBroken": false
+        }
+      ],
+      "headingsCount": 4
+    }
+  }
+]

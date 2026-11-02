@@ -49,11 +49,17 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col bg-[#EEEAE0] text-[#252A25] selection:bg-[#AA9160] selection:text-white">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#176B45] focus:text-[#FAF9F5] focus:text-xs focus:uppercase focus:tracking-luxury focus:font-medium focus:shadow-md"
+        >
+          Skip to main content
+        </a>
         <ShopProvider>
           <AuthProvider>
             <AnnouncementBar />
             <Header />
-            <main className="flex-1">{children}</main>
+            <main id="main-content" className="flex-1">{children}</main>
             <Footer />
             <SearchModal />
             <QuickViewModal />

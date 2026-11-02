@@ -1,0 +1,46 @@
+[
+  {
+    "route": "Homepage",
+    "url": "http://localhost:3000/",
+    "fcpMs": 724,
+    "domContentLoadedMs": 701,
+    "loadEventMs": 977,
+    "transferSizeKb": 21,
+    "decodedBodyKb": 143,
+    "domNodes": 815,
+    "heapMb": 5
+  },
+  {
+    "route": "Shop",
+    "url": "http://localhost:3000/shop",
+    "fcpMs": 56,
+    "domContentLoadedMs": 22,
+    "loadEventMs": 70,
+    "transferSizeKb": 10,
+    "decodedBodyKb": 47,
+    "domNodes": 1595,
+    "heapMb": 7
+  },
+  {
+    "route": "Product Detail",
+    "url": "http://localhost:3000/product/gulab-embroidered-kurta-set",
+    "fcpMs": 64,
+    "domContentLoadedMs": 22,
+    "loadEventMs": 161,
+    "transferSizeKb": 16,
+    "decodedBodyKb": 99,
+    "domNodes": 2292,
+    "heapMb": 9
+  },
+  {
+    "route": "Cart",
+    "url": "http://localhost:3000/cart",
+    "fcpMs": 60,
+    "domContentLoadedMs": 20,
+    "loadEventMs": 52,
+    "transferSizeKb": 7,
+    "decodedBodyKb": 35,
+    "domNodes": 2556,
+    "heapMb": 10
+  }
+]

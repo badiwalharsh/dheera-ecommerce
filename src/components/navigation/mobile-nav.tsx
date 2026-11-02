@@ -18,7 +18,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="lg:hidden fixed inset-0 top-20 bg-[#FAF9F5] z-50 px-6 py-8 border-t border-[#E2DFD6] flex flex-col justify-between overflow-y-auto animate-fade-in">
+    <div className="lg:hidden fixed inset-0 top-16 sm:top-20 md:top-24 bg-[#FAF9F5] z-50 px-6 py-8 border-t border-[#E2DFD6] flex flex-col justify-between overflow-y-auto animate-fade-in">
       <nav className="flex flex-col space-y-4">
         <div className="text-[10px] tracking-luxury uppercase text-[#AA9160] font-semibold mb-1">
           Explore DHEERA

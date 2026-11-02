@@ -28,9 +28,12 @@ export function ProductGallery({ productName, tag, images }: ProductGalleryProps
 
   // Active view labels for luxury editorial presentation
   const getViewLabel = (index: number) => {
-    if (index === 0) return "Full Silhouette";
-    if (index === 1) return "Embroidery & Neckline Detail";
-    if (index === 2) return "Fabric Weave & Texture";
+    if (index === 0) return "Front Silhouette";
+    if (index === 1) return "Back Silhouette & Drape";
+    if (index === 2) return "Embroidery & Neckline Craftsmanship";
+    if (index === 3) return "Hemline & Border Detail";
+    if (index === 4) return "Fabric Weave & Pure Texture";
+    if (index === 5) return "Editorial Styling Context";
     return `Editorial Perspective ${index + 1}`;
   };
 
@@ -169,8 +172,8 @@ export function ProductGallery({ productName, tag, images }: ProductGalleryProps
                 sizes="96px"
                 className="object-cover object-center"
               />
-              <span className="absolute bottom-0 inset-x-0 bg-black/50 text-[#FAF9F5] text-[7px] sm:text-[8px] uppercase tracking-wider py-0.5 text-center truncate px-1">
-                {idx === 0 ? "Full" : idx === 1 ? "Detail" : idx === 2 ? "Weave" : `#${idx + 1}`}
+              <span className="absolute bottom-0 inset-x-0 bg-black/60 text-[#FAF9F5] text-[7px] sm:text-[8px] uppercase tracking-wider py-0.5 text-center truncate px-1 font-medium">
+                {idx === 0 ? "Front" : idx === 1 ? "Back" : idx === 2 ? "Detail" : idx === 3 ? "Border" : idx === 4 ? "Fabric" : idx === 5 ? "Style" : `#${idx + 1}`}
               </span>
             </button>
           ))}

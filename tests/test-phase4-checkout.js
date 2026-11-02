@@ -166,7 +166,8 @@ async function run() {
   console.log("\n--- 2. End-to-End API Integration Verifications ---");
 
   console.log("Starting Next.js production server for API tests...");
-  const server = spawn("cmd.exe", ["/c", "npx", "next", "start", "-p", "3000"], {
+  const nextBin = path.join(__dirname, "..", "node_modules", "next", "dist", "bin", "next");
+  const server = spawn(process.execPath, [nextBin, "start", "-p", "3000"], {
     cwd: path.join(__dirname, ".."),
     stdio: "ignore",
   });

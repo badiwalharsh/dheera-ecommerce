@@ -15,6 +15,7 @@ const testFiles = [
   "tests/phase8.3-image-optimization.test.js",
   "tests/phase8.4-visual-audit.test.js",
   "tests/phase8.5-product-catalogue.test.js",
+  "tests/phase8.6-image-upgrade.test.js",
 ];
 
 console.log("=".repeat(80));

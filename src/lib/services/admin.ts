@@ -660,7 +660,7 @@ export async function duplicateAdminProduct(
   id: string,
   admin: AdminUser
 ): Promise<CatalogProduct | null> {
-  const source = await getProductById(id);
+  const source = await getAdminProductById(id);
   if (!source) return null;
 
   const copyId = `prod-${crypto.randomUUID().slice(0, 8)}`;
@@ -674,7 +674,9 @@ export async function duplicateAdminProduct(
     slug: copySlug,
     name: copyName,
     sku: copySku,
-    variants: source.variants.map((v) => {
+    status: "draft",
+    isPrototype: false,
+    variants: (source.variants || []).map((v) => {
       const vSku = `${v.sku}-COPY`;
       setVariantStock(copyId, v.size, v.colour, v.quantityAvailable);
       return { ...v, id: `var-${crypto.randomUUID().slice(0, 8)}`, sku: vSku };

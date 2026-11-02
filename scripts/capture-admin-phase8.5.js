@@ -239,3 +239,4 @@ capture().catch((err) => {
   console.error("Capture script failed:", err);
   process.exit(1);
 });
+

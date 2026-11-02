@@ -63,6 +63,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Default unassigned status to published if product is marked inStock, maintaining backward compatibility
+    if (!body.status && body.inStock !== false) {
+      body.status = "published";
+    }
+
     const created = await createAdminProduct(body, authResult.admin);
 
     const statusLabel = created.status === "published" ? "published" : "saved as draft";

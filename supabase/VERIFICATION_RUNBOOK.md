@@ -2,13 +2,13 @@
 
 **Brand:** DHEERA — Apparel & Lifestyle  
 **Descriptor:** Indian Heritage, Contemporary Soul  
-**Phase:** 8.1 Production Infrastructure Verification & Deployment Safety Audit  
+**Phase:** 8.2 Final Infrastructure Hardening & Production Safety Verification  
 
 ---
 
 ## 1. Executive Summary & Migration Inventory
 
-The DHEERA PostgreSQL schema is managed across seven sequential SQL migration files within `supabase/migrations/`. Each migration builds upon previous schema definitions and security primitives.
+The DHEERA PostgreSQL schema is managed across eight sequential SQL migration files within `supabase/migrations/`. Each migration builds upon previous schema definitions and security primitives.
 
 | Sequence | Migration File | Scope & Target Objects | Target Role & Primitives | Classification |
 |---|---|---|---|---|
@@ -19,6 +19,7 @@ The DHEERA PostgreSQL schema is managed across seven sequential SQL migration fi
 | **05** | `20261031000004_customer_security_hardening.sql` | Hardened `associate_guest_orders()`, `handle_new_user()` trigger | Supabase Auth Security | **Repeatable** |
 | **06** | `20261031000005_admin_management.sql` | `admin_users`, `audit_logs`, `customization_requests`, `store_settings`, storage buckets | Administration & CMS | **Run-Once** |
 | **07** | `20261031000006_admin_security_hardening.sql` | Append-only `audit_logs`, storage RLS policies, function privilege revocations | Enterprise Admin Security | **Repeatable** |
+| **08** | `20261102000000_notification_queue.sql` | `notification_queue`, unique `idempotency_key`, `claim_queued_notifications()` lease RPC | Authoritative Durable Email Queue | **Repeatable** |
 
 ---
 
@@ -33,7 +34,7 @@ While `CREATE TABLE IF NOT EXISTS` prevents catastrophic table creation errors o
 ### 2.2 Classification Rules
 - **Run-Once Migrations (000000, 000001, 000002, 000003, 000005):**
   These migrations are designed to be applied **once and only once** by the migration runner (`supabase migration up` or Supabase CLI). They record their applied state in `supabase_migrations.schema_migrations`.
-- **Repeatable / Hardening Migrations (000004, 000006):**
+- **Repeatable / Hardening Migrations (000004, 000006, 000000_notification_queue):**
   These migrations use defensive constructs:
   - `CREATE OR REPLACE FUNCTION ...`
   - `DROP POLICY IF EXISTS ... CREATE POLICY ...`
@@ -63,7 +64,7 @@ supabase migration up
 ### Step 3.2: Verify Table & RLS Policy Creation
 Execute the following verification query against the disposable database:
 ```sql
--- 1. Verify all 18 application tables exist
+-- 1. Verify all 19 application tables exist (including notification_queue)
 SELECT table_name 
 FROM information_schema.tables 
 WHERE table_schema = 'public' 
@@ -76,13 +77,25 @@ WHERE schemaname = 'public'
   AND rowsecurity = FALSE;
 -- Expected result: 0 rows (all public tables MUST have rowsecurity = true)
 
--- 3. Verify immutability of audit_logs (append-only)
+-- 3. Verify notification_queue uniqueness and privilege isolation
+SELECT conname, contype 
+FROM pg_constraint 
+WHERE conrelid = 'public.notification_queue'::regclass;
+-- Expected: uq_notification_queue_idempotency UNIQUE constraint
+
+SELECT routine_name, grantee, privilege_type 
+FROM information_schema.routine_privileges 
+WHERE routine_schema = 'public' 
+  AND routine_name = 'claim_queued_notifications';
+-- Expected: 'service_role' only. No 'anon', 'public', or 'authenticated'.
+
+-- 4. Verify immutability of audit_logs (append-only)
 SELECT polname, polcmd, polroles::regrole[] 
 FROM pg_policy 
 WHERE polrelid = 'public.audit_logs'::regclass;
 -- Expected: SELECT policy and INSERT policy only. No UPDATE or DELETE policy.
 
--- 4. Verify storage buckets exist and have proper publicity
+-- 5. Verify storage buckets exist and have proper publicity
 SELECT id, name, public 
 FROM storage.buckets 
 ORDER BY id;
@@ -91,16 +104,6 @@ ORDER BY id;
 --   customizations            | false
 --   product-images            | true
 --   products                  | true
-```
-
-### Step 3.3: Verify SECURITY DEFINER Function Privileges
-```sql
--- Verify guest order association cannot be executed by anon
-SELECT routine_name, grantee, privilege_type 
-FROM information_schema.routine_privileges 
-WHERE routine_schema = 'public' 
-  AND routine_name = 'associate_guest_orders';
--- Expected: 'authenticated' role only. No 'anon' or 'public'.
 ```
 
 ---

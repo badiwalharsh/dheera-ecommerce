@@ -30,6 +30,7 @@ In Phase 8.3:
 ## A. Milestone Tracking & Git State
 
 - **Previous Baseline Milestone:** Phase 8.2 committed as `7149f01` (`feat(phase-8.2): complete final infrastructure hardening and production safety verification`).
+- **Phase 8.3 Commit SHA:** `581f598` (`feat(phase-8.3): product image quality enhancement and visual asset optimization`).
 - **Phase 8.3 Status:** Complete and verified.
 - **Git Working Tree:** Clean baseline preserved; all new components, optimization scripts, and test suites tracked.
 
